@@ -27,6 +27,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          sed -i 's/\r$//' scripts/collect-beta-feedback.sh scripts/post-daily-digest-issue.sh
           chmod +x scripts/collect-beta-feedback.sh scripts/post-daily-digest-issue.sh
           bash scripts/collect-beta-feedback.sh
 
@@ -45,4 +46,6 @@ jobs:
       - name: Open or update daily tracker issue
         env:
           GH_TOKEN: ${{ github.token }}
-        run: bash scripts/post-daily-digest-issue.sh
+        run: |
+          sed -i 's/\r$//' scripts/post-daily-digest-issue.sh
+          bash scripts/post-daily-digest-issue.sh
