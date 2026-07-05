@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env bash
+#!/usr/bin/env bash
 set -euo pipefail
 cd "$(dirname "$0")"
 
@@ -8,7 +8,6 @@ step() {
   echo "    OK"
 }
 
-# China mirrors for local dev only; CI uses default pub.dev / Google storage.
 if [[ -z "${CI:-}" ]]; then
   export PUB_HOSTED_URL="${PUB_HOSTED_URL:-https://pub.flutter-io.cn}"
   export FLUTTER_STORAGE_BASE_URL="${FLUTTER_STORAGE_BASE_URL:-https://storage.flutter-io.cn}"
