@@ -16,6 +16,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Ensure labels exist
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh label create beta-feedback --description "Beta tester feedback" --color "1D76DB" 2>/dev/null || true
+          gh label create daily-digest --description "Automated daily feedback summary" --color "0E8A16" 2>/dev/null || true
+
       - name: Collect beta feedback
         env:
           GH_TOKEN: ${{ github.token }}
