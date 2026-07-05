@@ -22,7 +22,7 @@ cd d:\Cursor\luna-app
 产物：
 
 - Web：`dist\beta\web\`
-- APK：`dist\beta\android\localoop-beta-0.1.0.apk`
+- APK：`dist\beta\android\localoop-beta-0.1.4.apk`（版本号随 `pubspec.yaml` 自动同步）
 
 ---
 
@@ -31,7 +31,7 @@ cd d:\Cursor\luna-app
 | 产物 | 路径 | 给谁用 |
 |------|------|--------|
 | **网页版** | `dist/beta/web/` | 所有手机浏览器点开即试 |
-| **Android 安装包** | `dist/beta/android/localoop-beta-0.1.0.apk` | 要装真 App、要系统通知的人 |
+| **Android 安装包** | `dist/beta/android/localoop-beta-0.1.4.apk` | 要装真 App、要系统通知的人 |
 
 打包命令（项目根目录）：
 
@@ -74,7 +74,7 @@ cd d:\Cursor\luna-app
 
 1. [Firebase Console](https://console.firebase.google.com/) 建项目
 2. 添加 Android 应用，包名填 **`app.localoop.cycle`**
-3. 菜单 → App Distribution → 上传 `localoop-beta-0.1.0.apk`
+3. 菜单 → App Distribution → 上传 `localoop-beta-0.1.4.apk`（或 `build-beta.ps1` 最新产物）
 4. 添加测试者邮箱 → 他们收邮件安装
 
 ### 方案 B：直链 APK（最野、最快）

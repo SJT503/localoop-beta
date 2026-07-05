@@ -36,7 +36,7 @@ ReminderPreview buildReminderPreview({
     return ReminderPreview(
       enabled: false,
       title: strings.reminderTitle,
-      body: strings.isEn ? 'Reminders are off' : '提醒已关闭',
+      body: strings.remindersOffBody,
       scheduledLabel: '',
       scheduledAt: null,
     );
@@ -46,15 +46,13 @@ ReminderPreview buildReminderPreview({
   final label = strings.formatDate(scheduledAt);
   final copy = settings.privacyNotificationMode
       ? strings.privacyReminderCopy
-      : (strings.isEn
-          ? 'Period supplies reminder in 2 days'
-          : '预计 2 天后进入经期窗口，记得补充用品');
+      : strings.periodSuppliesReminder;
 
   return ReminderPreview(
     enabled: true,
     title: strings.reminderTitle,
     body: copy,
-    scheduledLabel: strings.isEn ? 'Around $label' : '约 $label',
+    scheduledLabel: '${strings.aroundDate} $label',
     scheduledAt: scheduledAt,
   );
 }

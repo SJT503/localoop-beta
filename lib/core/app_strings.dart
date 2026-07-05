@@ -1,109 +1,329 @@
 ﻿import 'package:intl/intl.dart';
 
+import 'models/cycle_models.dart';
+import 'l10n/string_catalog.dart';
+import 'l10n/supported_locales.dart';
+import 'l10n/symptom_aliases.dart';
+
 class AppStrings {
   AppStrings(this.locale);
 
   final String locale;
 
   factory AppStrings.fromCode(String code) =>
-      AppStrings(code.startsWith('en') ? 'en' : 'zh');
+      AppStrings(normalizeLocaleCode(code));
+
+  String _t(String key) => StringCatalog.get(locale, key);
+  List<String> _l(String key) => StringCatalog.list(locale, key);
 
   bool get isEn => locale == 'en';
+  bool get isZh => locale == 'zh';
 
   String get appName => 'Localoop';
+  String get appTagline => _t('appTagline');
+  String get tabHome => _t('tabHome');
+  String get tabCalendar => _t('tabCalendar');
+  String get tabInsights => _t('tabInsights');
+  String get tabPrivacy => _t('tabPrivacy');
+  String get logToday => _t('logToday');
+  String get savedToday => _t('savedToday');
+  String get savedProfile => _t('savedProfile');
+  String get updatedProfile => _t('updatedProfile');
+  String get exportCopied => _t('exportCopied');
+  String get exportDownloaded => _t('exportDownloaded');
+  String get localSaved => _t('localSaved');
+  String get inPeriodDay => _t('inPeriodDay');
+  String get notInPeriod => _t('notInPeriod');
+  String get keepLogging => _t('keepLogging');
+  String get periodPrediction => _t('periodPrediction');
+  String get expectedWindow => _t('expectedWindow');
+  String get varianceDays => _t('varianceDays');
+  String get todayRecord => _t('todayRecord');
+  String get edit => _t('edit');
+  String get recentLogs => _t('recentLogs');
+  String get noLogThisDay => _t('noLogThisDay');
+  String get reminderTitle => _t('reminderTitle');
+  String get reminderBody => _t('reminderBody');
+  String get privacyReminderCopy => _t('privacyReminderCopy');
+  String get language => _t('language');
+  String get goalLabel => _t('goalLabel');
+  String get profileCreateTitle => _t('profileCreateTitle');
+  String get profileEditTitle => _t('profileEditTitle');
+  String get profileCreateSubtitle => _t('profileCreateSubtitle');
+  String get profileEditSubtitle => _t('profileEditSubtitle');
+  String get profileLastPeriodStart => _t('profileLastPeriodStart');
+  String get profileCycleLength => _t('profileCycleLength');
+  String get profilePeriodLength => _t('profilePeriodLength');
+  String get profileCyclesRecorded => _t('profileCyclesRecorded');
+  String get profileVariance => _t('profileVariance');
+  String get profileSave => _t('profileSave');
+  String get profileUpdate => _t('profileUpdate');
+  String get reminderScheduled => _t('reminderScheduled');
+  String get reminderPreviewSent => _t('reminderPreviewSent');
+  String get reminderPreviewWeb => _t('reminderPreviewWeb');
+  String get testReminder => _t('testReminder');
+  String get logQuickHint => _t('logQuickHint');
+  String get logBack => _t('logBack');
+  String get logNext => _t('logNext');
+  String get logSave => _t('logSave');
+  String get factorDisclaimer => _t('factorDisclaimer');
+  String get noteHint => _t('noteHint');
+  String get privacyHeroTitle => _t('privacyHeroTitle');
+  String get privacyHeroSubtitle => _t('privacyHeroSubtitle');
+  String get threatModelTitle => _t('threatModelTitle');
+  String get floMigrationTitle => _t('floMigrationTitle');
+  String get floMigrationIntro => _t('floMigrationIntro');
+  String get sendFeedbackTitle => _t('sendFeedbackTitle');
+  String get sendFeedbackSubtitle => _t('sendFeedbackSubtitle');
+  String get betaLinksTitle => _t('betaLinksTitle');
+  String get betaWebLink => _t('betaWebLink');
+  String get betaApkLink => _t('betaApkLink');
+  String get privacySettingsTitle => _t('privacySettingsTitle');
+  String get privacySettingsSubtitle => _t('privacySettingsSubtitle');
+  String get periodFertileWindow => _t('periodFertileWindow');
+  String get painTemperature => _t('painTemperature');
+  String get recordLogSuffix => _t('recordLogSuffix');
+  String get remindersOff => _t('remindersOff');
+  String get remindersOffBody => _t('remindersOffBody');
+  String get notificationPrivacyMode => _t('notificationPrivacyMode');
+  String get hideSensitiveWords => _t('hideSensitiveWords');
+  String get hideSensitiveSubtitle => _t('hideSensitiveSubtitle');
+  String get exportJsonTitle => _t('exportJsonTitle');
+  String get exportJsonSubtitle => _t('exportJsonSubtitle');
+  String get localFirstStorage => _t('localFirstStorage');
+  String get localFirstSubtitle => _t('localFirstSubtitle');
+  String get noCommunityFeed => _t('noCommunityFeed');
+  String get noCommunitySubtitle => _t('noCommunitySubtitle');
+  String get dayWord => _t('dayWord');
+  String get flowShort => _t('flowShort');
+  String get bbtShort => _t('bbtShort');
+  String get moodShort => _t('moodShort');
+  String get symptomsShort => _t('symptomsShort');
+  String get none => _t('none');
+  String get factorsShort => _t('factorsShort');
+  String get predictionBasis => _t('predictionBasis');
+  String get periodWord => _t('periodWord');
+  String get ovulationReference => _t('ovulationReference');
+  String get confidenceFactors => _t('confidenceFactors');
+  String get dataCompleteness => _t('dataCompleteness');
+  String get cyclesUnit => _t('cyclesUnit');
+  String get cycleStability => _t('cycleStability');
+  String get periodReliable => _t('periodReliable');
+  String get bbtContinuity => _t('bbtContinuity');
+  String get symptomContinuity => _t('symptomContinuity');
+  String get improveForecast => _t('improveForecast');
+  String get log3Cycles => _t('log3Cycles');
+  String get addFlowDaily => _t('addFlowDaily');
+  String get logBbtFixed => _t('logBbtFixed');
+  String get lifestyleFactors => _t('lifestyleFactors');
+  String get couldNotOpenLink => _t('couldNotOpenLink');
+  String get onlyTodayEditable => _t('onlyTodayEditable');
+  String get aroundDate => _t('aroundDate');
+  String get periodSuppliesReminder => _t('periodSuppliesReminder');
+  String get predictedWindowStarts => _t('predictedWindowStarts');
 
-  String get appTagline => isEn
-      ? 'Private, lightweight period assistant'
-      : '私密、轻量、中文友好的周期助手';
+  List<String> get goalOptions => _l('goalOptions');
+  List<String> get logStepTitles => _l('logStepTitles');
+  List<String> get symptomOptions => _l('symptomOptions');
+  List<String> get factorOptions => _l('factorOptions');
+  List<String> get moodOptions => _l('moodOptions');
+  List<String> get threatModelBullets => _l('threatModelBullets');
+  List<String> get floMigrationSteps => _l('floMigrationSteps');
 
-  String get tabHome => isEn ? 'Home' : '首页';
-  String get tabCalendar => isEn ? 'Calendar' : '日历';
-  String get tabInsights => isEn ? 'Insights' : '洞察';
-  String get tabPrivacy => isEn ? 'Privacy' : '隐私';
-  String get logToday => isEn ? 'Log today' : '记录今天';
-  String get savedToday => isEn ? 'Saved for today' : '已保存今日记录';
-  String get savedProfile => isEn ? 'Profile saved' : '已建立周期档案';
-  String get updatedProfile => isEn ? 'Profile updated' : '已更新周期档案';
-  String get exportCopied =>
-      isEn ? 'JSON copied to clipboard' : '数据已复制到剪贴板，可粘贴备份';
-  String get exportDownloaded =>
-      isEn ? 'Backup file downloaded' : '备份文件已下载';
-  String get localSaved => isEn ? 'Saved locally' : '本地保存';
-  String get inPeriodDay => isEn ? 'Period day' : '经期中';
-  String get notInPeriod => isEn ? 'Not in period' : '非经期';
-  String get keepLogging => isEn ? 'Keep logging' : '继续记录';
-  String get periodPrediction => isEn ? 'Period forecast' : '经期预测';
-  String get expectedWindow => isEn ? 'Expected window' : '预计窗口';
-  String get varianceDays => isEn ? 'variance about ±2 days' : '波动约 ±2 天';
-  String get todayRecord => isEn ? 'Today' : '今日记录';
-  String get edit => isEn ? 'Edit' : '编辑';
-  String get recentLogs => isEn ? 'Recent logs' : '最近记录';
-  String get noLogThisDay => isEn ? 'No log for this day yet' : '这天还没有记录';
-  String get reminderTitle => isEn ? 'Gentle reminder' : '温和提醒';
-  String get reminderBody => isEn
-      ? 'We will nudge you 2 days before the predicted window.'
-      : '将在预测窗口前 2 天温和提醒补充用品。';
-  String get privacyReminderCopy => isEn
-      ? 'Remember to log how you feel today'
-      : '今天记一下身体状态';
-  String get language => isEn ? 'Language' : '界面语言';
-  String get languageZh => '中文';
-  String get languageEn => 'English';
-  String get goalLabel => isEn ? 'Your goal' : '使用目标';
-  List<String> get goalOptions => isEn
-      ? ['Track cycle', 'Fertility watch', 'Ease cramps']
-      : ['记录周期', '备孕观察', '改善痛经'];
+  List<({int level, String title, String subtitle})> get flowOptions => [
+        (
+          level: 1,
+          title: _t('flow1Title'),
+          subtitle: _t('flow1Sub'),
+        ),
+        (
+          level: 2,
+          title: _t('flow2Title'),
+          subtitle: _t('flow2Sub'),
+        ),
+        (
+          level: 3,
+          title: _t('flow3Title'),
+          subtitle: _t('flow3Sub'),
+        ),
+        (
+          level: 4,
+          title: _t('flow4Title'),
+          subtitle: _t('flow4Sub'),
+        ),
+      ];
 
-  String get profileCreateTitle =>
-      isEn ? 'Create cycle profile' : '建立周期档案';
-  String get profileEditTitle =>
-      isEn ? 'Edit cycle profile' : '编辑周期档案';
-  String get profileCreateSubtitle =>
-      isEn ? 'One-time setup for better forecasts' : '只需一次，预测会更准';
-  String get profileEditSubtitle => isEn
-      ? 'Updates refresh calendar and insights'
-      : '更新后预测和日历会同步刷新';
-  String get profileLastPeriodStart =>
-      isEn ? 'Last period start (YYYY-MM-DD)' : '最近一次经期开始 (YYYY-MM-DD)';
-  String get profileCycleLength =>
-      isEn ? 'Average cycle (days)' : '平均周期（天）';
-  String get profilePeriodLength =>
-      isEn ? 'Period length (days)' : '经期长度（天）';
-  String get profileCyclesRecorded =>
-      isEn ? 'Cycles logged' : '已记录周期数';
-  String get profileVariance => isEn ? 'Variance (±days)' : '波动（±天）';
-  String get profileSave => isEn ? 'Save profile' : '保存档案';
-  String get profileUpdate => isEn ? 'Update profile' : '更新档案';
-  String get reminderScheduled => isEn
-      ? 'Next gentle reminder scheduled'
-      : '已安排下次温和提醒';
-  String get reminderPreviewSent => isEn
-      ? 'Preview notification sent'
-      : '已发送预览通知';
-  String get reminderPreviewWeb => isEn
-      ? 'Web demo: notification preview shown in-app'
-      : 'Web 演示：已在应用内显示提醒预览';
-  String get testReminder => isEn ? 'Preview reminder' : '预览提醒';
+  String get calendarPageSubtitle => _t('calendarPageSubtitle');
+  String get insightsPageSubtitle => _t('insightsPageSubtitle');
+  String get flowChangeHint => _t('flowChangeHint');
+  String get painTrackHint => _t('painTrackHint');
+  String get bbtContinuousHint => _t('bbtContinuousHint');
+  String get moreLogsNarrowWindow => _t('moreLogsNarrowWindow');
+  String get withoutBbtContraception => _t('withoutBbtContraception');
+  String get log3CyclesDetail => _t('log3CyclesDetail');
+  String get addFlowDailyDetail => _t('addFlowDailyDetail');
+  String get logBbtFixedDetail => _t('logBbtFixedDetail');
+  String get lifestyleFactorsDisclaimer => _t('lifestyleFactorsDisclaimer');
+  String get dayPrefix => _t('dayPrefix');
+  String get daySuffix => _t('daySuffix');
+  String get dayLabelCaps => _t('dayLabelCaps');
+  String get confidenceReliable => _t('confidenceReliable');
+  String get confidenceReference => _t('confidenceReference');
+  String get confidenceInitial => _t('confidenceInitial');
+  String get calendarLegendPeriod => _t('calendarLegendPeriod');
+  String get calendarLegendFertile => _t('calendarLegendFertile');
+  String get calendarLegendLogged => _t('calendarLegendLogged');
+  String get bbtOvulationReference => _t('bbtOvulationReference');
+  String get trendTitleSymptoms => _t('trendTitleSymptoms');
+  String get trendTitleFactors => _t('trendTitleFactors');
+  String get trendTitleBbt => _t('trendTitleBbt');
+  String get trendTitleReminder => _t('trendTitleReminder');
+  String get trendSymptomsEmpty => _t('trendSymptomsEmpty');
+  String get trendFactorsEmpty => _t('trendFactorsEmpty');
+  String get trendBbtGood => _t('trendBbtGood');
+  String get trendBbtWeak => _t('trendBbtWeak');
+  String get trendReminderBody => _t('trendReminderBody');
+  String get onboardingTitle1 => _t('onboardingTitle1');
+  String get onboardingBody1 => _t('onboardingBody1');
+  String get onboardingTitle2 => _t('onboardingTitle2');
+  String get onboardingBody2 => _t('onboardingBody2');
+  String get onboardingTitle3 => _t('onboardingTitle3');
+  String get onboardingBody3 => _t('onboardingBody3');
+  String get onboardingNext => _t('onboardingNext');
+  String get onboardingStart => _t('onboardingStart');
+  String get clearDataTitle => _t('clearDataTitle');
+  String get clearDataSubtitle => _t('clearDataSubtitle');
+  String get clearDataConfirmTitle => _t('clearDataConfirmTitle');
+  String get clearDataConfirmBody => _t('clearDataConfirmBody');
+  String get clearDataConfirmAction => _t('clearDataConfirmAction');
+  String get clearDataCancel => _t('clearDataCancel');
+  String get clearDataDone => _t('clearDataDone');
+  String get dataDisclosureTitle => _t('dataDisclosureTitle');
+  String get dataDisclosureSubtitle => _t('dataDisclosureSubtitle');
+
+  String confidenceReason(int cycles, int variance) => _t('confidenceReason')
+      .replaceAll('{cycles}', '$cycles')
+      .replaceAll('{variance}', '$variance');
+
+  String topItemCount(String label, int count) => _t('topItemCount')
+      .replaceAll('{label}', label)
+      .replaceAll('{count}', '$count');
+
+  String bbtStreakDays(int days) =>
+      _t('bbtStreakDays').replaceAll('{days}', '$days');
+
+  String trendSymptomsBody(int days, String items) => _t('trendSymptomsBody')
+      .replaceAll('{days}', '$days')
+      .replaceAll('{items}', items);
+
+  String trendFactorsBody(String items) =>
+      _t('trendFactorsBody').replaceAll('{items}', items);
+
+  String formatMonthYear(int year, int month) {
+    if (locale == 'zh') {
+      return '$year年$month月';
+    }
+    try {
+      return DateFormat.yMMMM(locale).format(DateTime(year, month));
+    } catch (_) {
+      return DateFormat.yMMMM('en').format(DateTime(year, month));
+    }
+  }
+
+  String cyclesLogged(int cycles) =>
+      _t('cyclesLogged').replaceAll('{cycles}', '$cycles');
+
+  String insightPreview(int cycles) =>
+      _t('insightPreview').replaceAll('{cycles}', '$cycles');
+
+  String todayFactorsRecorded(String list) =>
+      _t('todayFactorsRecorded').replaceAll('{list}', list);
+
+  String periodDayPill(int day) {
+    if (dayPrefix.isNotEmpty) {
+      return '$inPeriodDay · $dayPrefix$day$daySuffix'.trim();
+    }
+    if (daySuffix.isNotEmpty) {
+      return '$inPeriodDay · $day$daySuffix';
+    }
+    return '$inPeriodDay · $dayWord $day';
+  }
+
+  String normalizeSymptom(String value) =>
+      _normalizeListValue('symptomOptions', value);
+
+  String normalizeFactor(String value) =>
+      _normalizeListValue('factorOptions', value);
+
+  String normalizeMood(String value) => _normalizeListValue('moodOptions', value);
+
+  String _normalizeListValue(String listKey, String value) {
+    if (value.isEmpty) return value;
+    final target = _l(listKey);
+    for (final item in supportedLocales) {
+      final options = StringCatalog.list(item.code, listKey);
+      final index = options.indexOf(value);
+      if (index >= 0 && index < target.length) {
+        return target[index];
+      }
+    }
+    final aliasIndex = _aliasIndex(listKey, value);
+    if (aliasIndex != null && aliasIndex < target.length) {
+      return target[aliasIndex];
+    }
+    return value;
+  }
+
+  int? _aliasIndex(String listKey, String value) {
+    switch (listKey) {
+      case 'symptomOptions':
+        return symptomAliasToIndex[value];
+      case 'factorOptions':
+        return factorAliasToIndex[value];
+      case 'moodOptions':
+        return moodAliasToIndex[value];
+      default:
+        return null;
+    }
+  }
+
+  DailyRecord localizeRecord(DailyRecord record) {
+    return DailyRecord(
+      flow: record.flow,
+      bbt: record.bbt,
+      mood: record.mood.isEmpty ? record.mood : normalizeMood(record.mood),
+      symptoms: record.symptoms.map(normalizeSymptom).toList(),
+      factors: record.factors.map(normalizeFactor).toList(),
+      note: record.note,
+    );
+  }
 
   String normalizeGoal(String goal) {
-    const pairs = [
-      ('记录周期', 'Track cycle'),
-      ('备孕观察', 'Fertility watch'),
-      ('改善痛经', 'Ease cramps'),
-    ];
-    for (final pair in pairs) {
-      if (goal == pair.$1 || goal == pair.$2) {
-        return isEn ? pair.$2 : pair.$1;
+    const canonicalEn = ['Track cycle', 'Fertility watch', 'Ease cramps'];
+    const canonicalZh = ['记录周期', '备孕观察', '改善痛经'];
+    for (var i = 0; i < canonicalEn.length; i++) {
+      for (final locale in supportedLocales) {
+        final options = StringCatalog.list(locale.code, 'goalOptions');
+        if (i < options.length &&
+            (goal == options[i] ||
+                goal == canonicalEn[i] ||
+                goal == canonicalZh[i])) {
+          return goalOptions[i];
+        }
       }
     }
     return goalOptions.first;
   }
 
   String formatDate(DateTime date) {
-    if (isEn) {
+    if (locale == 'zh') {
+      return '${date.year}年${date.month}月${date.day}日';
+    }
+    try {
+      return DateFormat.yMMMd(locale).format(date);
+    } catch (_) {
       return DateFormat.yMMMd('en').format(date);
     }
-    return '${date.year}年${date.month}月${date.day}日';
   }
 
   String formatDateKey(String key) {
@@ -118,130 +338,19 @@ class AppStrings {
   }
 
   String listJoin(Iterable<String> values) =>
-      values.join(isEn ? ', ' : '、');
+      values.join(_t('listSeparator'));
 
-  List<String> get logStepTitles => isEn
-      ? [
-          'How is your flow today?',
-          'Any body signals?',
-          'Lifestyle factors today?',
-          'Mood and basal temperature',
-          'Add a short note',
-        ]
-      : [
-          '今天的月经流量？',
-          '有什么身体信号？',
-          '今天有哪些影响因素？',
-          '心情和基础体温',
-          '补一句备注',
-        ];
-
-  String get logQuickHint => isEn ? '~20 seconds' : '约 20 秒完成';
-  String get logBack => isEn ? 'Back' : '上一步';
-  String get logNext => isEn ? 'Next' : '继续';
-  String get logSave => isEn ? 'Save today' : '保存今日记录';
-  String get factorDisclaimer => isEn
-      ? 'For lifestyle observation only, not medical diagnosis.'
-      : '用于观察生活方式与症状的关系，不做医学诊断。';
-  String get noteHint => isEn
-      ? 'e.g. when pain started, sleep quality...'
-      : '比如：疼痛什么时候开始、睡眠如何……';
   String bbtLabel(double value) =>
-      isEn ? 'Basal temp ${value.toStringAsFixed(2)}°C' : '基础体温 ${value.toStringAsFixed(2)}℃';
-
-  List<String> get symptomOptions => isEn
-      ? [
-          'Cramping',
-          'Back ache',
-          'Breast tenderness',
-          'Fatigue',
-          'Headache',
-          'Acne',
-          'Bloating',
-          'Appetite change',
-        ]
-      : ['腹痛', '腰酸', '乳房胀痛', '疲惫', '头痛', '痘痘', '腹胀', '食欲变化'];
-
-  List<String> get factorOptions => isEn
-      ? ['Late night', 'Stress', 'Cold drinks', 'Exercise', 'Painkiller', 'Heat pack']
-      : ['熬夜', '压力', '冷饮', '运动强度', '止痛药', '热敷'];
-
-  List<String> get moodOptions =>
-      isEn ? ['Happy', 'Calm', 'Sensitive', 'Anxious', 'Tired'] : ['开心', '平静', '敏感', '焦虑', '疲惫'];
-
-  List<({int level, String title, String subtitle})> get flowOptions => isEn
-      ? [
-          (level: 1, title: 'Light', subtitle: 'Spotting or liner'),
-          (level: 2, title: 'Medium', subtitle: 'Normal changes'),
-          (level: 3, title: 'Heavy', subtitle: 'More frequent changes'),
-          (level: 4, title: 'Very heavy', subtitle: 'Clearly heavy'),
-        ]
-      : [
-          (level: 1, title: '轻微', subtitle: '点滴或护垫'),
-          (level: 2, title: '适中', subtitle: '正常更换'),
-          (level: 3, title: '较多', subtitle: '更频繁更换'),
-          (level: 4, title: '大量', subtitle: '明显偏多'),
-        ];
+      '${_t('basalTempLabel')} ${value.toStringAsFixed(2)}°C';
 
   String flowLabel(int flow) {
-    final labels = isEn
-        ? ['None', 'Light', 'Medium', 'Heavy', 'Very heavy']
-        : ['未记录', '轻微', '适中', '较多', '大量'];
+    final labels = [
+      _t('flowNone'),
+      _t('flowLight'),
+      _t('flowMedium'),
+      _t('flowHeavy'),
+      _t('flowVeryHeavy'),
+    ];
     return labels[flow.clamp(0, labels.length - 1)];
   }
-
-  String get privacyHeroTitle => isEn
-      ? 'Not another feed — your private cycle assistant.'
-      : '不是另一个内容社区，而是你的私密周期助理。';
-
-  String get privacyHeroSubtitle => isEn
-      ? 'Local-first by default: no account, no cloud sync, no ads.'
-      : '默认本地优先：无账号、无云端同步、无广告流。';
-
-  String get threatModelTitle =>
-      isEn ? 'How Localoop handles your data' : 'Localoop 如何处理你的数据';
-
-  List<String> get threatModelBullets => isEn
-      ? [
-          'Stored on this device only — we never receive your cycle history.',
-          'No sign-in required; uninstalling removes local data from this device.',
-          'Export JSON anytime; you own the file.',
-        ]
-      : [
-          '数据只存在本设备，我们不会收到你的周期记录。',
-          '无需注册；卸载即从本机删除本地数据。',
-          '随时 JSON 导出，文件归你所有。',
-        ];
-
-  String get floMigrationTitle =>
-      isEn ? 'Leaving Flo or Clue?' : '正在离开 Flo 或 Clue？';
-
-  String get floMigrationIntro => isEn
-      ? 'Three steps many privacy guides recommend before switching:'
-      : '多数隐私指南建议换 App 前先做这三步：';
-
-  List<String> get floMigrationSteps => isEn
-      ? [
-          'In Flo: Settings → Privacy → Request My Data. Save the export email.',
-          'Delete your Flo account (not just uninstall) so server copies are removed.',
-          'In Localoop: create your profile with your last period start date, then keep logging.',
-        ]
-      : [
-          '在 Flo：设置 → 隐私 → 申请我的数据，保存导出的邮件。',
-          '删除 Flo 账号（不只是卸载），让服务器上的副本被清除。',
-          '在 Localoop：用最近一次经期开始日建立档案，然后继续每日记录。',
-        ];
-
-  String get sendFeedbackTitle =>
-      isEn ? 'Send beta feedback' : '发送测试反馈';
-
-  String get sendFeedbackSubtitle => isEn
-      ? 'Opens a short GitHub form (no app data uploaded)'
-      : '打开 GitHub 简短反馈表（不会上传 App 内数据）';
-
-  String get betaLinksTitle => isEn ? 'Beta links' : '测试版链接';
-
-  String get betaWebLink => isEn ? 'Web beta URL' : '网页测试地址';
-
-  String get betaApkLink => isEn ? 'Android APK download' : 'Android 安装包下载';
 }

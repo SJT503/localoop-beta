@@ -40,61 +40,13 @@ class _LogSheetState extends State<LogSheet> {
     step = 0;
     flow = record.flow;
     bbt = record.bbt;
-    mood = _normalizeMood(record.mood);
+    mood = record.mood.isEmpty
+        ? (s.moodOptions.isNotEmpty ? s.moodOptions.first : '')
+        : s.normalizeMood(record.mood);
     note = record.note;
-    symptoms = record.symptoms.map(_normalizeSymptom).toSet();
-    factors = record.factors.map(_normalizeFactor).toSet();
+    symptoms = record.symptoms.map(s.normalizeSymptom).toSet();
+    factors = record.factors.map(s.normalizeFactor).toSet();
     _noteController = TextEditingController(text: note);
-  }
-
-  String _normalizeMood(String value) {
-    const zhToEn = {
-      '开心': 'Happy',
-      '平静': 'Calm',
-      '敏感': 'Sensitive',
-      '焦虑': 'Anxious',
-      '疲惫': 'Tired',
-    };
-    if (s.isEn) return zhToEn[value] ?? value;
-    const enToZh = {
-      'Happy': '开心',
-      'Calm': '平静',
-      'Sensitive': '敏感',
-      'Anxious': '焦虑',
-      'Tired': '疲惫',
-    };
-    return enToZh[value] ?? value;
-  }
-
-  String _normalizeSymptom(String value) {
-    final zh = [
-      '腹痛',
-      '腰酸',
-      '乳房胀痛',
-      '疲惫',
-      '头痛',
-      '痘痘',
-      '腹胀',
-      '食欲变化',
-    ];
-    final en = s.symptomOptions;
-    if (s.isEn) {
-      final index = zh.indexOf(value);
-      return index >= 0 ? en[index] : value;
-    }
-    final index = en.indexOf(value);
-    return index >= 0 ? zh[index] : value;
-  }
-
-  String _normalizeFactor(String value) {
-    final zh = ['熬夜', '压力', '冷饮', '运动强度', '止痛药', '热敷'];
-    final en = s.factorOptions;
-    if (s.isEn) {
-      final index = zh.indexOf(value);
-      return index >= 0 ? en[index] : value;
-    }
-    final index = en.indexOf(value);
-    return index >= 0 ? zh[index] : value;
   }
 
   @override

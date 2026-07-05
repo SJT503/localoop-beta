@@ -87,9 +87,7 @@ Future<bool> syncPeriodReminder({
         : strings.reminderTitle;
     final body = settings.privacyNotificationMode
         ? strings.reminderBody
-        : (strings.isEn
-            ? 'Your predicted window starts around ${strings.formatDate(when)}'
-            : '预计 ${strings.formatDate(when)} 进入经期窗口，记得补充用品');
+        : '${strings.predictedWindowStarts} ${strings.formatDate(when)}';
 
     await _plugin.zonedSchedule(
       _notificationId,

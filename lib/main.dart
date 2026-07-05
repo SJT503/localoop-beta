@@ -1,10 +1,16 @@
 ﻿import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 import 'features/period_tracking/period_tracking_screen.dart';
+import 'core/l10n/supported_locales.dart';
 import 'ui/mobile_shell.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  for (final item in supportedLocales) {
+    await initializeDateFormatting(item.code);
+  }
   runApp(const LocaloopApp());
 }
 

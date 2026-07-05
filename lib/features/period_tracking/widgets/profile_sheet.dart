@@ -57,11 +57,13 @@ class _ProfileSheetState extends State<ProfileSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final maxHeight = MediaQuery.sizeOf(context).height * 0.92;
     return Padding(
       padding: EdgeInsets.only(
         bottom: MediaQuery.of(context).viewInsets.bottom,
       ),
       child: Container(
+        constraints: BoxConstraints(maxHeight: maxHeight),
         padding: const EdgeInsets.fromLTRB(22, 12, 22, 18),
         decoration: const BoxDecoration(
           color: Colors.white,
@@ -69,10 +71,10 @@ class _ProfileSheetState extends State<ProfileSheet> {
         ),
         child: SafeArea(
           top: false,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
               Text(
                 widget.isFirstSetup ? s.profileCreateTitle : s.profileEditTitle,
                 style: const TextStyle(
@@ -162,6 +164,7 @@ class _ProfileSheetState extends State<ProfileSheet> {
                 ),
               ),
             ],
+            ),
           ),
         ),
       ),

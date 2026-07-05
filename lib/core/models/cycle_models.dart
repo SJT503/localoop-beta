@@ -1,12 +1,12 @@
 ﻿class CycleProfile {
   const CycleProfile({
     this.completed = false,
-    this.lastPeriodStart = '2026-07-02',
-    this.cycleLength = 29,
+    this.lastPeriodStart = '',
+    this.cycleLength = 28,
     this.periodLength = 5,
-    this.cycles = 3,
+    this.cycles = 0,
     this.variance = 2,
-    this.goal = '记录周期',
+    this.goal = 'Track cycle',
   });
 
   final bool completed;
@@ -50,12 +50,12 @@
   factory CycleProfile.fromJson(Map<String, dynamic> json) {
     return CycleProfile(
       completed: json['completed'] as bool? ?? false,
-      lastPeriodStart: json['lastPeriodStart'] as String? ?? '2026-07-02',
-      cycleLength: (json['cycleLength'] as num?)?.toInt() ?? 29,
+      lastPeriodStart: json['lastPeriodStart'] as String? ?? '',
+      cycleLength: (json['cycleLength'] as num?)?.toInt() ?? 28,
       periodLength: (json['periodLength'] as num?)?.toInt() ?? 5,
-      cycles: (json['cycles'] as num?)?.toInt() ?? 3,
+      cycles: (json['cycles'] as num?)?.toInt() ?? 0,
       variance: (json['variance'] as num?)?.toInt() ?? 2,
-      goal: json['goal'] as String? ?? '记录周期',
+      goal: json['goal'] as String? ?? 'Track cycle',
     );
   }
 }
@@ -66,18 +66,21 @@ class CycleSettings {
     this.privacyNotificationMode = true,
     this.hideSensitiveWords = false,
     this.localeCode = 'en',
+    this.onboardingCompleted = false,
   });
 
   final bool gentleReminder;
   final bool privacyNotificationMode;
   final bool hideSensitiveWords;
   final String localeCode;
+  final bool onboardingCompleted;
 
   CycleSettings copyWith({
     bool? gentleReminder,
     bool? privacyNotificationMode,
     bool? hideSensitiveWords,
     String? localeCode,
+    bool? onboardingCompleted,
   }) {
     return CycleSettings(
       gentleReminder: gentleReminder ?? this.gentleReminder,
@@ -85,6 +88,7 @@ class CycleSettings {
           privacyNotificationMode ?? this.privacyNotificationMode,
       hideSensitiveWords: hideSensitiveWords ?? this.hideSensitiveWords,
       localeCode: localeCode ?? this.localeCode,
+      onboardingCompleted: onboardingCompleted ?? this.onboardingCompleted,
     );
   }
 
@@ -93,6 +97,7 @@ class CycleSettings {
         'privacyNotificationMode': privacyNotificationMode,
         'hideSensitiveWords': hideSensitiveWords,
         'localeCode': localeCode,
+        'onboardingCompleted': onboardingCompleted,
       };
 
   factory CycleSettings.fromJson(Map<String, dynamic> json) {
@@ -101,17 +106,18 @@ class CycleSettings {
       privacyNotificationMode: json['privacyNotificationMode'] as bool? ?? true,
       hideSensitiveWords: json['hideSensitiveWords'] as bool? ?? false,
       localeCode: json['localeCode'] as String? ?? 'en',
+      onboardingCompleted: json['onboardingCompleted'] as bool? ?? false,
     );
   }
 }
 
 class DailyRecord {
   const DailyRecord({
-    this.flow = 2,
-    this.bbt = 36.58,
-    this.mood = '平静',
-    this.symptoms = const ['腹痛', '腰酸'],
-    this.factors = const ['熬夜', '热敷'],
+    this.flow = 0,
+    this.bbt = 0,
+    this.mood = '',
+    this.symptoms = const [],
+    this.factors = const [],
     this.note = '',
   });
 
@@ -151,17 +157,17 @@ class DailyRecord {
 
   factory DailyRecord.fromJson(Map<String, dynamic> json) {
     return DailyRecord(
-      flow: (json['flow'] as num?)?.toInt() ?? 2,
-      bbt: (json['bbt'] as num?)?.toDouble() ?? 36.58,
-      mood: json['mood'] as String? ?? '平静',
+      flow: (json['flow'] as num?)?.toInt() ?? 0,
+      bbt: (json['bbt'] as num?)?.toDouble() ?? 0,
+      mood: json['mood'] as String? ?? '',
       symptoms: (json['symptoms'] as List<dynamic>?)
               ?.map((e) => e.toString())
               .toList() ??
-          const ['腹痛', '腰酸'],
+          const [],
       factors: (json['factors'] as List<dynamic>?)
               ?.map((e) => e.toString())
               .toList() ??
-          const ['熬夜', '热敷'],
+          const [],
       note: json['note'] as String? ?? '',
     );
   }

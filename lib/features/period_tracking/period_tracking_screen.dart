@@ -13,6 +13,8 @@ import '../../core/notifications/reminder_scheduler.dart';
 import '../../core/reminder_utils.dart';
 import '../../core/storage/cycle_store.dart';
 import '../../ui/theme/luna_colors.dart';
+import '../../ui/widgets/language_picker_button.dart';
+import '../onboarding/onboarding_screen.dart';
 import 'widgets/log_sheet.dart';
 import 'widgets/profile_sheet.dart';
 import 'widgets/record_detail_sheet.dart';
@@ -48,8 +50,9 @@ class _PeriodTrackingScreenState extends State<PeriodTrackingScreen> {
       _store = store;
       _loading = false;
     });
-    await _syncReminders();
-    if (!store.profile.completed) {
+    if (store.profile.completed) {
+      await _syncReminders();
+    } else if (store.settings.onboardingCompleted) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) _openProfile(isFirstSetup: true);
       });
@@ -57,7 +60,7 @@ class _PeriodTrackingScreenState extends State<PeriodTrackingScreen> {
   }
 
   AppStrings get _strings =>
-      AppStrings.fromCode(_store?.settings.localeCode ?? 'zh');
+      AppStrings.fromCode(_store?.settings.localeCode ?? 'en');
 
   void _refresh() => setState(() {});
 
@@ -74,8 +77,8 @@ class _PeriodTrackingScreenState extends State<PeriodTrackingScreen> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      isDismissible: !isFirstSetup,
-      enableDrag: !isFirstSetup,
+      isDismissible: true,
+      enableDrag: true,
       builder: (_) => ProfileSheet(
         initial: store.profile,
         isFirstSetup: isFirstSetup,
@@ -113,18 +116,17 @@ class _PeriodTrackingScreenState extends State<PeriodTrackingScreen> {
   void _onDayTap(String dateKey) {
     final store = _store;
     if (store == null) return;
+    final raw = store.recordForDate(dateKey);
     showRecordDetailSheet(
       context: context,
       dateKey: dateKey,
-      record: store.recordForDate(dateKey),
+      record: raw == null ? null : _strings.localizeRecord(raw),
       strings: _strings,
       onEdit: () {
         if (dateKey == todayKey()) {
           _openLog();
         } else {
-          _snack(_strings.isEn
-              ? 'Only today can be edited from the log sheet'
-              : '仅今日记录可通过「记录今天」编辑');
+          _snack(_strings.onlyTodayEditable);
         }
       },
     );
@@ -195,10 +197,51 @@ class _PeriodTrackingScreenState extends State<PeriodTrackingScreen> {
     await _toggleSetting((s) => s.copyWith(localeCode: localeCode));
   }
 
+  Future<void> _clearAllData() async {
+    final store = _store;
+    if (store == null) return;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(_strings.clearDataConfirmTitle),
+        content: Text(_strings.clearDataConfirmBody),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(_strings.clearDataCancel),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(backgroundColor: C.primary),
+            onPressed: () => Navigator.pop(context, true),
+            child: Text(_strings.clearDataConfirmAction),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+    await store.clearAllData();
+    _refresh();
+    _snack(_strings.clearDataDone);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _openProfile(isFirstSetup: true);
+    });
+  }
+
+  Future<void> _completeOnboarding() async {
+    await _toggleSetting((s) => s.copyWith(onboardingCompleted: true));
+    if (!mounted) return;
+    final store = _store;
+    if (store != null && !store.profile.completed) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _openProfile(isFirstSetup: true);
+      });
+    }
+  }
+
   Future<void> _openExternalUrl(String url) async {
     final uri = Uri.parse(url);
     if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
-      _snack(_strings.isEn ? 'Could not open link' : '无法打开链接');
+      _snack(_strings.couldNotOpenLink);
     }
   }
 
@@ -226,13 +269,25 @@ class _PeriodTrackingScreenState extends State<PeriodTrackingScreen> {
 
     final store = _store!;
     final strings = _strings;
-    final confidence = confidenceSummary(store.profile);
-    final metrics = insightMetrics(store.profile, store.history);
-    final stats = historyStats(store.history);
+    final todayRecord = strings.localizeRecord(store.todayRecord);
+
+    if (!store.settings.onboardingCompleted) {
+      return OnboardingScreen(
+        strings: strings,
+        localeCode: store.settings.localeCode,
+        onSwitchLanguage: _switchLanguage,
+        onComplete: _completeOnboarding,
+      );
+    }
+
+    final confidence = confidenceSummary(store.profile, strings);
+    final metrics = insightMetrics(store.profile, store.history, strings);
+    final stats = historyStats(store.history, strings);
     final trends = buildTrendCards(
       stats: stats,
       confidence: confidence,
       metrics: metrics,
+      strings: strings,
     );
     final reminder = buildReminderPreview(
       profile: store.profile,
@@ -250,8 +305,9 @@ class _PeriodTrackingScreenState extends State<PeriodTrackingScreen> {
     final pages = [
       _HomePage(
         strings: strings,
+        localeCode: store.settings.localeCode,
         profile: store.profile,
-        record: store.todayRecord,
+        record: todayRecord,
         confidence: confidence,
         periodDay: periodDay,
         calendarDays: makeCalendarDays(
@@ -265,6 +321,7 @@ class _PeriodTrackingScreenState extends State<PeriodTrackingScreen> {
         onCalendar: () => setState(() => _tab = 1),
         onInsight: () => setState(() => _tab = 2),
         onDayTap: _onDayTap,
+        onSwitchLanguage: _switchLanguage,
       ),
       _CalendarPage(
         strings: strings,
@@ -272,7 +329,9 @@ class _PeriodTrackingScreenState extends State<PeriodTrackingScreen> {
         calendarYear: _calendarYear,
         calendarMonth: _calendarMonth,
         calendarDays: calendarDays,
-        todayRecord: store.recordForDate(todayKey()),
+        todayRecord: store.recordForDate(todayKey()) == null
+            ? null
+            : strings.localizeRecord(store.recordForDate(todayKey())!),
         onLog: _openLog,
         onPrevMonth: () => _shiftCalendarMonth(-1),
         onNextMonth: () => _shiftCalendarMonth(1),
@@ -280,11 +339,11 @@ class _PeriodTrackingScreenState extends State<PeriodTrackingScreen> {
       ),
       _InsightPage(
         strings: strings,
-        record: store.todayRecord,
+        record: todayRecord,
         confidence: confidence,
         metrics: metrics,
         trends: trends,
-        factors: store.todayRecord.factors,
+        factors: todayRecord.factors,
         onLog: _openLog,
       ),
       _PrivacyPage(
@@ -299,10 +358,11 @@ class _PeriodTrackingScreenState extends State<PeriodTrackingScreen> {
             _toggleSetting((s) => s.copyWith(privacyNotificationMode: v)),
         onToggleHideSensitive: (v) =>
             _toggleSetting((s) => s.copyWith(hideSensitiveWords: v)),
-        onSwitchLanguage: _switchLanguage,
         onExport: _exportData,
+        onClearData: _clearAllData,
         onPreviewReminder: _previewReminder,
         onSendFeedback: () => _openExternalUrl(BetaLinks.feedbackIssue),
+        onOpenDataDisclosure: () => _openExternalUrl(BetaLinks.dataDisclosure),
         onOpenWebBeta: () => _openExternalUrl(BetaLinks.webApp),
         onOpenApk: () => _openExternalUrl(BetaLinks.apkRelease),
       ),
@@ -355,6 +415,7 @@ class _PeriodTrackingScreenState extends State<PeriodTrackingScreen> {
 class _HomePage extends StatelessWidget {
   const _HomePage({
     required this.strings,
+    required this.localeCode,
     required this.profile,
     required this.record,
     required this.confidence,
@@ -365,9 +426,11 @@ class _HomePage extends StatelessWidget {
     required this.onCalendar,
     required this.onInsight,
     required this.onDayTap,
+    required this.onSwitchLanguage,
   });
 
   final AppStrings strings;
+  final String localeCode;
   final CycleProfile profile;
   final DailyRecord record;
   final ConfidenceSummary confidence;
@@ -378,13 +441,19 @@ class _HomePage extends StatelessWidget {
   final VoidCallback onCalendar;
   final VoidCallback onInsight;
   final ValueChanged<String> onDayTap;
+  final ValueChanged<String> onSwitchLanguage;
 
   @override
   Widget build(BuildContext context) {
     return ListView(
       padding: const EdgeInsets.fromLTRB(20, 16, 20, 96),
       children: [
-        _Header(strings: strings, onProfile: onProfile),
+        _Header(
+          strings: strings,
+          localeCode: localeCode,
+          onProfile: onProfile,
+          onSwitchLanguage: onSwitchLanguage,
+        ),
         const SizedBox(height: 16),
         _Hero(
           strings: strings,
@@ -403,7 +472,7 @@ class _HomePage extends StatelessWidget {
               child: _Action(
                 icon: Icons.calendar_month,
                 title: strings.tabCalendar,
-                subtitle: strings.isEn ? 'Period / fertile window' : '经期 / 易孕期',
+                subtitle: strings.periodFertileWindow,
                 color: C.purple,
                 onTap: onCalendar,
               ),
@@ -413,7 +482,7 @@ class _HomePage extends StatelessWidget {
               child: _Action(
                 icon: Icons.insights,
                 title: strings.tabInsights,
-                subtitle: strings.isEn ? 'Pain × temperature' : '疼痛 × 体温',
+                subtitle: strings.painTemperature,
                 color: C.mint,
                 onTap: onInsight,
               ),
@@ -422,6 +491,7 @@ class _HomePage extends StatelessWidget {
         ),
         const SizedBox(height: 16),
         _CalendarWidget(
+          strings: strings,
           year: DateTime.now().year,
           month: DateTime.now().month,
           days: calendarDays,
@@ -466,12 +536,11 @@ class _CalendarPage extends StatelessWidget {
       children: [
         _PageTitle(
           strings.tabCalendar,
-          strings.isEn
-              ? 'See period, fertile window and predictions'
-              : '清楚看到经期、易孕期和预测窗口',
+          strings.calendarPageSubtitle,
         ),
         const SizedBox(height: 16),
         _CalendarWidget(
+          strings: strings,
           year: calendarYear,
           month: calendarMonth,
           days: calendarDays,
@@ -488,7 +557,7 @@ class _CalendarPage extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '${formatChineseDateKey(todayKey())} ${strings.isEn ? 'log' : '记录'}',
+                  '${strings.formatDateKey(todayKey())} ${strings.recordLogSuffix}',
                   style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w900,
@@ -499,24 +568,18 @@ class _CalendarPage extends StatelessWidget {
                 _Timeline(
                   Icons.water_drop,
                   strings.flowLabel(todayRecord!.flow),
-                  strings.isEn
-                      ? 'Change supplies every 4–6 hours if needed'
-                      : '建议每 4-6 小时更换一次',
+                  strings.flowChangeHint,
                 ),
                 if (todayRecord!.symptoms.isNotEmpty)
                   _Timeline(
                     Icons.healing,
-                    todayRecord!.symptoms.join('、'),
-                    strings.isEn
-                        ? 'Track intensity if pain exceeds 7/10'
-                        : '如果疼痛超过 7/10，可记录强度变化',
+                    strings.listJoin(todayRecord!.symptoms),
+                    strings.painTrackHint,
                   ),
                 _Timeline(
                   Icons.thermostat,
                   '${todayRecord!.bbt.toStringAsFixed(2)}℃',
-                  strings.isEn
-                      ? 'Continuous logging improves ovulation detection'
-                      : '连续记录会提升排卵识别质量',
+                  strings.bbtContinuousHint,
                 ),
                 SizedBox(
                   width: double.infinity,
@@ -561,9 +624,7 @@ class _InsightPage extends StatelessWidget {
       children: [
         _PageTitle(
           strings.tabInsights,
-          strings.isEn
-              ? 'Turn logs into understandable body signals'
-              : '把记录变成可理解的身体线索',
+          strings.insightsPageSubtitle,
         ),
         const SizedBox(height: 16),
         _TodayCard(strings: strings, record: record, onTap: onLog),
@@ -597,10 +658,11 @@ class _PrivacyPage extends StatelessWidget {
     required this.onToggleGentle,
     required this.onTogglePrivacyMode,
     required this.onToggleHideSensitive,
-    required this.onSwitchLanguage,
     required this.onExport,
+    required this.onClearData,
     required this.onPreviewReminder,
     required this.onSendFeedback,
+    required this.onOpenDataDisclosure,
     required this.onOpenWebBeta,
     required this.onOpenApk,
   });
@@ -611,10 +673,11 @@ class _PrivacyPage extends StatelessWidget {
   final ValueChanged<bool> onToggleGentle;
   final ValueChanged<bool> onTogglePrivacyMode;
   final ValueChanged<bool> onToggleHideSensitive;
-  final ValueChanged<String> onSwitchLanguage;
   final VoidCallback onExport;
+  final VoidCallback onClearData;
   final VoidCallback onPreviewReminder;
   final VoidCallback onSendFeedback;
+  final VoidCallback onOpenDataDisclosure;
   final VoidCallback onOpenWebBeta;
   final VoidCallback onOpenApk;
 
@@ -624,10 +687,8 @@ class _PrivacyPage extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(20, 16, 20, 96),
       children: [
         _PageTitle(
-          strings.isEn ? 'Privacy & settings' : '隐私与设置',
-          strings.isEn
-              ? 'Local-first trust by default'
-              : 'P0 阶段先把信任感做出来',
+          strings.privacySettingsTitle,
+          strings.privacySettingsSubtitle,
         ),
         const SizedBox(height: 16),
         _PrivacyHero(strings: strings),
@@ -641,61 +702,23 @@ class _PrivacyPage extends StatelessWidget {
           title: strings.reminderTitle,
           subtitle: reminder.enabled
               ? '${reminder.body} · ${reminder.scheduledLabel}'
-              : (strings.isEn ? 'Reminders off' : '提醒已关闭'),
+              : strings.remindersOff,
           value: settings.gentleReminder,
           onChanged: onToggleGentle,
         ),
         _SettingToggle(
           icon: Icons.sms_failed,
-          title: strings.isEn ? 'Notification privacy mode' : '通知隐私模式',
+          title: strings.notificationPrivacyMode,
           subtitle: strings.privacyReminderCopy,
           value: settings.privacyNotificationMode,
           onChanged: onTogglePrivacyMode,
         ),
         _SettingToggle(
           icon: Icons.hide_source,
-          title: strings.isEn ? 'Hide sensitive words' : '敏感词隐藏',
-          subtitle: strings.isEn
-              ? 'Hide period/ovulation terms on widgets & lock screen'
-              : '桌面组件和锁屏通知可隐藏月经、排卵等词汇',
+          title: strings.hideSensitiveWords,
+          subtitle: strings.hideSensitiveSubtitle,
           value: settings.hideSensitiveWords,
           onChanged: onToggleHideSensitive,
-        ),
-        _Card(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  CircleAvatar(
-                    backgroundColor: C.blush,
-                    child: Icon(Icons.language, color: C.primary),
-                  ),
-                  const SizedBox(width: 14),
-                  Expanded(
-                    child: Text(
-                      strings.language,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.w900,
-                        color: C.text,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              SegmentedButton<String>(
-                segments: [
-                  ButtonSegment(value: 'zh', label: Text(strings.languageZh)),
-                  ButtonSegment(value: 'en', label: Text(strings.languageEn)),
-                ],
-                selected: {settings.localeCode},
-                onSelectionChanged: (selected) {
-                  onSwitchLanguage(selected.first);
-                },
-              ),
-            ],
-          ),
         ),
         const SizedBox(height: 4),
         _SettingAction(
@@ -708,11 +731,21 @@ class _PrivacyPage extends StatelessWidget {
         ),
         _SettingAction(
           icon: Icons.ios_share,
-          title: strings.isEn ? 'Export JSON backup' : '数据导出',
-          subtitle: strings.isEn
-              ? 'Download or copy all local data'
-              : '导出 JSON 给医生或自己备份',
+          title: strings.exportJsonTitle,
+          subtitle: strings.exportJsonSubtitle,
           onTap: onExport,
+        ),
+        _SettingAction(
+          icon: Icons.delete_forever_outlined,
+          title: strings.clearDataTitle,
+          subtitle: strings.clearDataSubtitle,
+          onTap: onClearData,
+        ),
+        _SettingAction(
+          icon: Icons.description_outlined,
+          title: strings.dataDisclosureTitle,
+          subtitle: strings.dataDisclosureSubtitle,
+          onTap: onOpenDataDisclosure,
         ),
         _SettingAction(
           icon: Icons.rate_review_outlined,
@@ -749,17 +782,13 @@ class _PrivacyPage extends StatelessWidget {
         ),
         _SettingInfo(
           icon: Icons.lock,
-          title: strings.isEn ? 'Local-first storage' : '本地优先保存',
-          subtitle: strings.isEn
-              ? 'Cycle, symptoms and BBT stay on device'
-              : '周期、症状、体温记录默认保存在设备侧',
+          title: strings.localFirstStorage,
+          subtitle: strings.localFirstSubtitle,
         ),
         _SettingInfo(
           icon: Icons.visibility_off,
-          title: strings.isEn ? 'No community feed' : '无社区干扰',
-          subtitle: strings.isEn
-              ? 'No ads targeting your body data'
-              : '不做信息流推荐，不把身体数据变成广告标签',
+          title: strings.noCommunityFeed,
+          subtitle: strings.noCommunitySubtitle,
         ),
       ],
     );
@@ -767,10 +796,17 @@ class _PrivacyPage extends StatelessWidget {
 }
 
 class _Header extends StatelessWidget {
-  const _Header({required this.strings, required this.onProfile});
+  const _Header({
+    required this.strings,
+    required this.localeCode,
+    required this.onProfile,
+    required this.onSwitchLanguage,
+  });
 
   final AppStrings strings;
+  final String localeCode;
   final VoidCallback onProfile;
+  final ValueChanged<String> onSwitchLanguage;
 
   @override
   Widget build(BuildContext context) {
@@ -805,6 +841,11 @@ class _Header extends StatelessWidget {
             ],
           ),
         ),
+        LanguagePickerButton(
+          strings: strings,
+          localeCode: localeCode,
+          onSelected: onSwitchLanguage,
+        ),
         IconButton(
           icon: const Icon(Icons.tune, color: C.text),
           onPressed: onProfile,
@@ -830,10 +871,8 @@ class _Hero extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final inPeriod = periodDay > 0;
-    final pillText = inPeriod
-        ? '${strings.inPeriodDay} · ${strings.isEn ? 'Day' : '第'} $periodDay ${strings.isEn ? '' : '天'}'
-            .trim()
-        : strings.notInPeriod;
+    final pillText =
+        inPeriod ? strings.periodDayPill(periodDay) : strings.notInPeriod;
 
     return Container(
       padding: const EdgeInsets.all(22),
@@ -888,7 +927,7 @@ class _Hero extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      strings.isEn ? 'DAY' : 'DAY',
+                      strings.dayLabelCaps,
                       style: const TextStyle(color: Colors.white70, fontSize: 11),
                     ),
                   ],
@@ -967,7 +1006,7 @@ class _TodayCard extends StatelessWidget {
               Expanded(
                 child: _Metric(
                   Icons.water_drop,
-                  strings.isEn ? 'Flow' : '流量',
+                  strings.flowShort,
                   strings.flowLabel(record.flow),
                   C.primary,
                 ),
@@ -976,7 +1015,7 @@ class _TodayCard extends StatelessWidget {
               Expanded(
                 child: _Metric(
                   Icons.thermostat,
-                  strings.isEn ? 'BBT' : '体温',
+                  strings.bbtShort,
                   '${record.bbt.toStringAsFixed(2)}℃',
                   C.amber,
                 ),
@@ -989,8 +1028,8 @@ class _TodayCard extends StatelessWidget {
               Expanded(
                 child: _Metric(
                   Icons.mood,
-                  strings.isEn ? 'Mood' : '心情',
-                  record.mood,
+                  strings.moodShort,
+                  record.mood.isEmpty ? strings.none : strings.normalizeMood(record.mood),
                   C.purple,
                 ),
               ),
@@ -998,10 +1037,12 @@ class _TodayCard extends StatelessWidget {
               Expanded(
                 child: _Metric(
                   Icons.healing,
-                  strings.isEn ? 'Symptoms' : '症状',
+                  strings.symptomsShort,
                   record.symptoms.isEmpty
-                      ? (strings.isEn ? 'None' : '暂无')
-                      : record.symptoms.take(2).join('、'),
+                      ? strings.none
+                      : strings.listJoin(
+                          record.symptoms.map(strings.normalizeSymptom).take(2),
+                        ),
                   C.mint,
                 ),
               ),
@@ -1010,10 +1051,12 @@ class _TodayCard extends StatelessWidget {
           const SizedBox(height: 10),
           _Metric(
             Icons.local_fire_department,
-            strings.isEn ? 'Factors' : '生活因素',
+            strings.factorsShort,
             record.factors.isEmpty
-                ? (strings.isEn ? 'None' : '暂无')
-                : record.factors.take(3).join('、'),
+                ? strings.none
+                : strings.listJoin(
+                    record.factors.map(strings.normalizeFactor).take(3),
+                  ),
             C.amber,
           ),
         ],
@@ -1024,6 +1067,7 @@ class _TodayCard extends StatelessWidget {
 
 class _CalendarWidget extends StatelessWidget {
   const _CalendarWidget({
+    required this.strings,
     required this.year,
     required this.month,
     required this.days,
@@ -1032,6 +1076,7 @@ class _CalendarWidget extends StatelessWidget {
     this.onNextMonth,
   });
 
+  final AppStrings strings;
   final int year;
   final int month;
   final List<CalendarDay> days;
@@ -1041,7 +1086,7 @@ class _CalendarWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final monthLabel = '$year年$month月';
+    final monthLabel = strings.formatMonthYear(year, month);
 
     return _Card(
       child: Column(
@@ -1111,12 +1156,21 @@ class _CalendarWidget extends StatelessWidget {
             }).toList(),
           ),
           const SizedBox(height: 10),
-          const Wrap(
+          Wrap(
             spacing: 12,
             children: [
-              _LegendDot(color: Color(0x2EE84B7A), label: '经期'),
-              _LegendDot(color: Color(0x1F7C5CFF), label: '易孕期'),
-              _LegendDot(color: Color(0x2631B59A), label: '已记录'),
+              _LegendDot(
+                color: Color(0x2EE84B7A),
+                label: strings.calendarLegendPeriod,
+              ),
+              _LegendDot(
+                color: Color(0x1F7C5CFF),
+                label: strings.calendarLegendFertile,
+              ),
+              _LegendDot(
+                color: Color(0x2631B59A),
+                label: strings.calendarLegendLogged,
+              ),
             ],
           ),
         ],
@@ -1152,9 +1206,7 @@ class _InsightPreview extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final text = strings.isEn
-        ? 'Insight preview: ${profile.cycles} logged cycles — keep logging for pain × sleep × flow trends.'
-        : '洞察预览：过去 ${profile.cycles} 个周期较稳定，下一步可生成「疼痛 × 睡眠 × 流量」趋势。';
+    final text = strings.insightPreview(profile.cycles);
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
@@ -1195,7 +1247,7 @@ class _PredictionBasis extends StatelessWidget {
             children: [
               Expanded(
                 child: Text(
-                  strings.isEn ? 'Prediction basis' : '本次预测依据',
+                  strings.predictionBasis,
                   style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w900,
@@ -1203,28 +1255,22 @@ class _PredictionBasis extends StatelessWidget {
                   ),
                 ),
               ),
-              _Pill('${strings.isEn ? 'Period' : '经期'} ${confidence.periodLevel}'),
+              _Pill('${strings.periodWord} ${confidence.periodLevel}'),
             ],
           ),
           const SizedBox(height: 12),
           _BasisRow(
             Icons.history,
             cycles != null
-                ? (strings.isEn
-                    ? '$cycles complete cycles logged'
-                    : '已记录 $cycles 个完整周期')
+                ? strings.cyclesLogged(cycles)
                 : confidence.reason,
-            strings.isEn
-                ? 'More logs narrow the forecast window'
-                : '经期预测已较可信，继续记录可缩小窗口',
+            strings.moreLogsNarrowWindow,
           ),
           _BasisRow(Icons.timeline, confidence.window, confidence.reason),
           _BasisRow(
             Icons.thermostat,
-            strings.isEn ? 'Ovulation window is reference only' : '排卵窗口仍为参考',
-            strings.isEn
-                ? 'Without continuous BBT, not for contraception'
-                : '缺少连续基础体温，不建议作为避孕依据',
+            strings.ovulationReference,
+            strings.withoutBbtContraception,
           ),
         ],
       ),
@@ -1245,7 +1291,7 @@ class _ConfidenceFactors extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            strings.isEn ? 'Confidence factors' : '可信度因子',
+            strings.confidenceFactors,
             style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w900,
@@ -1254,25 +1300,25 @@ class _ConfidenceFactors extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           _FactorBar(
-            strings.isEn ? 'Data completeness' : '数据完整度',
+            strings.dataCompleteness,
             metrics.dataCompleteness,
             C.primary,
-            '${(metrics.dataCompleteness * 5).round()}/5 ${strings.isEn ? 'cycles' : '个完整周期'}',
+            '${(metrics.dataCompleteness * 5).round()}/5 ${strings.cyclesUnit}',
           ),
           _FactorBar(
-            strings.isEn ? 'Cycle stability' : '周期稳定性',
+            strings.cycleStability,
             metrics.cycleStability,
             C.purple,
-            strings.isEn ? 'Period reliable' : '经期较可信',
+            strings.periodReliable,
           ),
           _FactorBar(
-            strings.isEn ? 'BBT continuity' : '体温连续性',
+            strings.bbtContinuity,
             metrics.bbtContinuity,
             C.amber,
             metrics.bbtNote,
           ),
           _FactorBar(
-            strings.isEn ? 'Symptom continuity' : '症状连续性',
+            strings.symptomContinuity,
             metrics.symptomContinuity,
             C.mint,
             metrics.symptomNote,
@@ -1299,7 +1345,7 @@ class _AccuracyCard extends StatelessWidget {
             children: [
               Expanded(
                 child: Text(
-                  strings.isEn ? 'Improve forecast accuracy' : '如何提高预测准确度',
+                  strings.improveForecast,
                   style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w900,
@@ -1307,30 +1353,24 @@ class _AccuracyCard extends StatelessWidget {
                   ),
                 ),
               ),
-              _Pill('${strings.isEn ? 'Period' : '经期'} ${confidence.periodLevel}'),
+              _Pill('${strings.periodWord} ${confidence.periodLevel}'),
             ],
           ),
           const SizedBox(height: 12),
           _AccuracyStep(
             '1',
-            strings.isEn ? 'Log 3 complete cycles' : '连续记录 3 个完整周期',
-            strings.isEn
-                ? 'Complete start/end dates narrow the window.'
-                : '开始日、结束日越完整，预测区间越窄。',
+            strings.log3Cycles,
+            strings.log3CyclesDetail,
           ),
           _AccuracyStep(
             '2',
-            strings.isEn ? 'Add flow and symptoms daily' : '每天补充流量和症状',
-            strings.isEn
-                ? 'Distinguish spotting from true period.'
-                : '可区分经前点滴、真实经期和异常出血。',
+            strings.addFlowDaily,
+            strings.addFlowDailyDetail,
           ),
           _AccuracyStep(
             '3',
-            strings.isEn ? 'Log BBT at a fixed time' : '固定时间记录基础体温',
-            strings.isEn
-                ? '10+ consecutive days improve ovulation detection.'
-                : '连续 10 天以上，排卵窗口判断会更可靠。',
+            strings.logBbtFixed,
+            strings.logBbtFixedDetail,
           ),
         ],
       ),
@@ -1346,13 +1386,13 @@ class _LocalFactors extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const allFactors = ['熬夜', '压力', '冷饮', '运动强度', '止痛药', '热敷'];
+    final allFactors = strings.factorOptions;
     return _Card(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            strings.isEn ? 'Lifestyle factors' : '本土生活因素',
+            strings.lifestyleFactors,
             style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w900,
@@ -1361,9 +1401,13 @@ class _LocalFactors extends StatelessWidget {
           ),
           const SizedBox(height: 6),
           Text(
-            strings.isEn
-                ? 'Today: ${factors.isEmpty ? 'None' : factors.join(', ')}'
-                : '今日已记录：${factors.isEmpty ? '暂无' : factors.join('、')}',
+            strings.todayFactorsRecorded(
+              factors.isEmpty
+                  ? strings.none
+                  : strings.listJoin(
+                      factors.map(strings.normalizeFactor),
+                    ),
+            ),
             style: const TextStyle(color: C.soft, fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 10),
@@ -1374,9 +1418,7 @@ class _LocalFactors extends StatelessWidget {
           ),
           const SizedBox(height: 10),
           Text(
-            strings.isEn
-                ? 'For lifestyle observation only — consult a doctor if cycles change suddenly.'
-                : '这些只用于生活方式观察，不做医学诊断；如周期突然明显异常，建议咨询医生。',
+            strings.lifestyleFactorsDisclaimer,
             style: const TextStyle(color: C.soft, height: 1.35, fontSize: 12),
           ),
         ],

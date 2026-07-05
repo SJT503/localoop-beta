@@ -14,6 +14,7 @@ $pagesBase = "/$repoName/"
 Set-Location $root
 
 Write-Host "==> build web + apk" -ForegroundColor Cyan
+& (Join-Path $root "scripts\sync-beta-links.ps1")
 & (Join-Path $root "build-beta.ps1")
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
@@ -71,18 +72,22 @@ if ($LASTEXITCODE -ne 0) {
 }
 
 Write-Host "==> GitHub release + APK" -ForegroundColor Cyan
-$apk = Join-Path $root "dist\beta\android\localoop-beta-0.1.0.apk"
-$tag = "v0.1.0-beta"
+$pubspec = Get-Content (Join-Path $root "pubspec.yaml") -Raw
+$versionMatch = [regex]::Match($pubspec, '(?m)^version:\s*([\d.]+)\+(\d+)')
+$appVersion = $versionMatch.Groups[1].Value
+$apk = Join-Path $root "dist\beta\android\localoop-beta-$appVersion.apk"
+$tag = "v$appVersion-beta"
 $releaseNotes = @"
-Localoop beta for Flo/Clue privacy testers.
+Localoop beta for Flo/Clue privacy testers (v$appVersion).
 
 - Web: https://sjt503.github.io/localoop-beta/
+- Data notice: https://github.com/$ghRepo/blob/main/docs/DATA_DISCLOSURE.md
 - Feedback: https://github.com/$ghRepo/issues/new?template=beta_feedback.yml
 "@
 
 gh release view $tag --repo $ghRepo 2>$null
 if ($LASTEXITCODE -ne 0) {
-  gh release create $tag --repo $ghRepo --title "Localoop Beta 0.1.0" --notes $releaseNotes $apk
+  gh release create $tag --repo $ghRepo --title "Localoop Beta $appVersion" --notes $releaseNotes $apk
 } else {
   gh release upload $tag --repo $ghRepo $apk --clobber
 }
@@ -90,5 +95,6 @@ if ($LASTEXITCODE -ne 0) {
 Write-Host ""
 Write-Host "Deploy OK" -ForegroundColor Green
 Write-Host "  Web:  https://sjt503.github.io/localoop-beta/"
-Write-Host "  APK:  https://github.com/$ghRepo/releases/download/$tag/localoop-beta-0.1.0.apk"
+Write-Host "  APK:  https://github.com/$ghRepo/releases/latest/download/localoop-beta-$appVersion.apk"
+Write-Host "  Data: https://github.com/$ghRepo/blob/main/docs/DATA_DISCLOSURE.md"
 Write-Host "  Feedback: https://github.com/$ghRepo/issues/new?template=beta_feedback.yml"

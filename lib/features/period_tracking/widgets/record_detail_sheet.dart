@@ -42,10 +42,24 @@ class RecordDetailSheet extends StatelessWidget {
                       color: C.text)),
               const SizedBox(height: 12),
               _row(Icons.water_drop, strings.flowLabel(record.flow)),
-              _row(Icons.mood, record.mood),
+              _row(Icons.mood, strings.normalizeMood(record.mood)),
               _row(Icons.thermostat, strings.bbtLabel(record.bbt)),
-              _row(Icons.healing, strings.listJoin(record.symptoms)),
-              _row(Icons.local_fire_department, strings.listJoin(record.factors)),
+              _row(
+                Icons.healing,
+                record.symptoms.isEmpty
+                    ? strings.none
+                    : strings.listJoin(
+                        record.symptoms.map(strings.normalizeSymptom),
+                      ),
+              ),
+              _row(
+                Icons.local_fire_department,
+                record.factors.isEmpty
+                    ? strings.none
+                    : strings.listJoin(
+                        record.factors.map(strings.normalizeFactor),
+                      ),
+              ),
               if (record.note.isNotEmpty) _row(Icons.notes, record.note),
               const SizedBox(height: 16),
               SizedBox(

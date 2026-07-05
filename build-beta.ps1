@@ -6,6 +6,15 @@ $flutter = "D:\flutter\flutter\bin\flutter.bat"
 
 Set-Location $PSScriptRoot
 
+& (Join-Path $PSScriptRoot "scripts\sync-beta-links.ps1")
+
+$pubspec = Get-Content "pubspec.yaml" -Raw
+$versionMatch = [regex]::Match($pubspec, '(?m)^version:\s*([\d.]+)\+(\d+)')
+if (-not $versionMatch.Success) {
+  throw "Could not parse version from pubspec.yaml"
+}
+$appVersion = $versionMatch.Groups[1].Value
+
 $dist = Join-Path $PSScriptRoot "dist\beta"
 $webOut = Join-Path $dist "web"
 $apkOut = Join-Path $dist "android"
@@ -81,14 +90,14 @@ if (Test-Path $webOut) { Remove-Item -Recurse -Force $webOut }
 Copy-Item -Recurse -Force "build\web" $webOut
 
 $apkSrc = "build\app\outputs\flutter-apk\app-release.apk"
-$apkDst = Join-Path $apkOut "localoop-beta-0.1.0.apk"
+$apkDst = Join-Path $apkOut "localoop-beta-$appVersion.apk"
 Copy-Item -Force $apkSrc $apkDst
 
 $readme = @"
 Localoop beta build — $(Get-Date -Format 'yyyy-MM-dd HH:mm')
 
 Web:  dist/beta/web/          → upload folder to Cloudflare Pages / GitHub Pages
-APK:  dist/beta/android/localoop-beta-0.1.0.apk → Firebase App Distribution or direct link
+APK:  dist/beta/android/localoop-beta-$appVersion.apk → Firebase App Distribution or direct link
 
 Wild-path install (Android):
 1. Send APK link to tester

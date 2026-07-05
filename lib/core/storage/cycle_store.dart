@@ -12,17 +12,6 @@ const _settingsKey = 'localoop_settings_v1';
 const _defaultProfile = CycleProfile();
 const _defaultRecord = DailyRecord();
 
-final _seedHistory = <String, DailyRecord>{
-  '2026-07-03': _defaultRecord,
-  '2026-07-04': const DailyRecord(
-    flow: 1,
-    bbt: 36.62,
-    mood: '敏感',
-    symptoms: ['腹痛', '疲惫'],
-    factors: ['压力', '热敷'],
-  ),
-};
-
 class CycleStore {
   CycleStore._(this._prefs);
 
@@ -60,7 +49,7 @@ class CycleStore {
 
   Map<String, DailyRecord> _readHistory() {
     final raw = _prefs.getString(_historyKey);
-    if (raw == null) return Map<String, DailyRecord>.from(_seedHistory);
+    if (raw == null) return {};
     final decoded = jsonDecode(raw) as Map<String, dynamic>;
     return decoded.map(
       (key, value) => MapEntry(
@@ -86,6 +75,16 @@ class CycleStore {
     settings = next;
     await _prefs.setString(_settingsKey, jsonEncode(settings.toJson()));
     return settings;
+  }
+
+  /// Removes cycle logs and profile. Keeps language and privacy settings.
+  Future<void> clearAllData() async {
+    profile = const CycleProfile();
+    todayRecord = const DailyRecord();
+    history = {};
+    await _prefs.remove(_profileKey);
+    await _prefs.remove(_recordKey);
+    await _prefs.setString(_historyKey, jsonEncode({}));
   }
 
   List<HistoryEntry> historyList() {

@@ -1,4 +1,5 @@
-﻿import 'models/cycle_models.dart';
+﻿import 'app_strings.dart';
+import 'models/cycle_models.dart';
 
 class ConfidenceSummary {
   const ConfidenceSummary({
@@ -44,25 +45,34 @@ String _addDaysLabel(String dateText, int days) {
   return '${date.month}/${date.day}';
 }
 
-ConfidenceSummary confidenceSummary(CycleProfile profile) {
+ConfidenceSummary confidenceSummary(CycleProfile profile, AppStrings strings) {
+  if (!profile.completed || profile.lastPeriodStart.isEmpty) {
+    return ConfidenceSummary(
+      periodLevel: strings.confidenceInitial,
+      ovulationLevel: strings.confidenceReference,
+      window: '—',
+      reason: strings.keepLogging,
+    );
+  }
   final periodLevel = profile.cycles >= 3 && profile.variance <= 2
-      ? '较可信'
+      ? strings.confidenceReliable
       : profile.cycles >= 2
-          ? '参考'
-          : '初始估算';
+          ? strings.confidenceReference
+          : strings.confidenceInitial;
   final start =
       _addDaysLabel(profile.lastPeriodStart, profile.cycleLength - profile.variance);
   final end =
       _addDaysLabel(profile.lastPeriodStart, profile.cycleLength + profile.variance);
   return ConfidenceSummary(
     periodLevel: periodLevel,
-    ovulationLevel: '参考',
+    ovulationLevel: strings.confidenceReference,
     window: '$start - $end',
-    reason: '基于 ${profile.cycles} 个完整周期，近期波动约 ±${profile.variance} 天',
+    reason: strings.confidenceReason(profile.cycles, profile.variance),
   );
 }
 
 int periodDayOnDate(CycleProfile profile, DateTime date) {
+  if (!profile.completed || profile.lastPeriodStart.isEmpty) return 0;
   final start = DateTime.parse('${profile.lastPeriodStart}T00:00:00');
   final diff = date.difference(start).inDays + 1;
   if (diff >= 1 && diff <= profile.periodLength + 2) return diff;
@@ -70,12 +80,14 @@ int periodDayOnDate(CycleProfile profile, DateTime date) {
 }
 
 bool isPeriodDay(CycleProfile profile, DateTime date) {
+  if (!profile.completed || profile.lastPeriodStart.isEmpty) return false;
   final start = DateTime.parse('${profile.lastPeriodStart}T00:00:00');
   final diff = date.difference(start).inDays;
   return diff >= 0 && diff < profile.periodLength;
 }
 
 bool isFertileWindow(CycleProfile profile, DateTime date) {
+  if (!profile.completed || profile.lastPeriodStart.isEmpty) return false;
   final ovulation =
       DateTime.parse('${profile.lastPeriodStart}T00:00:00')
           .add(Duration(days: profile.cycleLength - 14));
@@ -125,7 +137,11 @@ class InsightMetrics {
   final String symptomNote;
 }
 
-InsightMetrics insightMetrics(CycleProfile profile, Map<String, DailyRecord> history) {
+InsightMetrics insightMetrics(
+  CycleProfile profile,
+  Map<String, DailyRecord> history,
+  AppStrings strings,
+) {
   final dataCompleteness = (profile.cycles / 5).clamp(0.0, 1.0);
   final cycleStability = profile.variance <= 2 ? 0.76 : 0.48;
   final sortedKeys = history.keys.toList()..sort();
@@ -145,26 +161,20 @@ InsightMetrics insightMetrics(CycleProfile profile, Map<String, DailyRecord> his
       history.isEmpty ? 0.0 : (symptomDays / history.length).clamp(0.0, 1.0);
   final topSymptoms = <String>{};
   for (final record in history.values) {
-    topSymptoms.addAll(record.symptoms.take(2));
+    topSymptoms.addAll(record.symptoms.take(2).map(strings.normalizeSymptom));
   }
   return InsightMetrics(
     dataCompleteness: dataCompleteness,
     cycleStability: cycleStability,
     bbtContinuity: bbtContinuity,
     symptomContinuity: symptomContinuity,
-    bbtNote: bbtStreak >= 10 ? '连续 $bbtStreak 天' : '排卵仍参考',
-    symptomNote: topSymptoms.isEmpty ? '暂无' : topSymptoms.take(2).join('、'),
+    bbtNote: bbtStreak >= 10
+        ? strings.bbtStreakDays(bbtStreak)
+        : strings.bbtOvulationReference,
+    symptomNote: topSymptoms.isEmpty
+        ? strings.none
+        : strings.listJoin(topSymptoms.take(2)),
   );
-}
-
-String formatChineseDate(DateTime date) {
-  return '${date.year}年${date.month}月${date.day}日';
-}
-
-String formatChineseDateKey(String key) {
-  final parts = key.split('-');
-  if (parts.length != 3) return key;
-  return '${parts[0]}年${int.parse(parts[1])}月${int.parse(parts[2])}日';
 }
 
 class RankedItem {
@@ -190,7 +200,10 @@ class HistoryStats {
   final String topFactor;
 }
 
-HistoryStats historyStats(Map<String, DailyRecord> history) {
+HistoryStats historyStats(
+  Map<String, DailyRecord> history,
+  AppStrings strings,
+) {
   final list = history.entries.toList();
   List<RankedItem> countValues(String key) {
     final counts = <String, int>{};
@@ -212,8 +225,18 @@ HistoryStats historyStats(Map<String, DailyRecord> history) {
     totalDays: list.length,
     symptoms: symptoms,
     factors: factors,
-    topSymptom: symptoms.isEmpty ? '暂无' : '${symptoms.first.label} ${symptoms.first.count} 次',
-    topFactor: factors.isEmpty ? '暂无' : '${factors.first.label} ${factors.first.count} 次',
+    topSymptom: symptoms.isEmpty
+        ? strings.none
+        : strings.topItemCount(
+            strings.normalizeSymptom(symptoms.first.label),
+            symptoms.first.count,
+          ),
+    topFactor: factors.isEmpty
+        ? strings.none
+        : strings.topItemCount(
+            strings.normalizeFactor(factors.first.label),
+            factors.first.count,
+          ),
   );
 }
 
@@ -235,36 +258,47 @@ List<TrendCardData> buildTrendCards({
   required HistoryStats stats,
   required ConfidenceSummary confidence,
   required InsightMetrics metrics,
+  required AppStrings strings,
 }) {
+  final symptomItems = strings.listJoin(
+    stats.symptoms.take(3).map(
+      (item) =>
+          '${strings.normalizeSymptom(item.label)}(${item.count})',
+    ),
+  );
+  final factorItems = strings.listJoin(
+    stats.factors.take(3).map((item) => strings.normalizeFactor(item.label)),
+  );
+
   return [
     TrendCardData(
-      title: '常见症状',
+      title: strings.trendTitleSymptoms,
       badge: stats.topSymptom,
       body: stats.symptoms.isEmpty
-          ? '继续记录后，这里会显示最常出现的身体信号。'
-          : '过去 ${stats.totalDays} 天记录里，${stats.symptoms.take(3).map((e) => '${e.label}(${e.count})').join('、')} 较常见。',
+          ? strings.trendSymptomsEmpty
+          : strings.trendSymptomsBody(stats.totalDays, symptomItems),
       colorValue: 0xFF7C5CFF,
     ),
     TrendCardData(
-      title: '生活因素',
+      title: strings.trendTitleFactors,
       badge: stats.topFactor,
       body: stats.factors.isEmpty
-          ? '记录熬夜、压力、运动等因素，可观察与症状的关系。'
-          : '最常伴随记录的是 ${stats.factors.take(3).map((e) => e.label).join('、')}，仅作生活方式观察。',
+          ? strings.trendFactorsEmpty
+          : strings.trendFactorsBody(factorItems),
       colorValue: 0xFFFFA340,
     ),
     TrendCardData(
-      title: '体温连续性',
+      title: strings.trendTitleBbt,
       badge: metrics.bbtNote,
       body: metrics.bbtContinuity >= 0.6
-          ? '基础体温记录较连续，排卵窗口判断会更可靠。'
-          : '缺少连续 BBT 时，排卵窗口只适合做身体观察，不建议作为避孕依据。',
+          ? strings.trendBbtGood
+          : strings.trendBbtWeak,
       colorValue: 0xFF31B59A,
     ),
     TrendCardData(
-      title: '下次提醒',
+      title: strings.trendTitleReminder,
       badge: confidence.window,
-      body: '提前 2 天温和提醒补充用品，并提示热敷或轻运动。',
+      body: strings.trendReminderBody,
       colorValue: 0xFF31B59A,
     ),
   ];
