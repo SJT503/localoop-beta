@@ -19,6 +19,7 @@ if [[ -n "$existing" ]]; then
   gh issue comment "$existing" --repo "$REPO" --body "$BODY"
   echo "Updated comment on issue #$existing"
 else
-  gh issue create --repo "$REPO" --title "$TITLE" --label "beta-feedback" --label "daily-digest" --body "$BODY"
+  gh label create daily-digest --description "Automated daily feedback summary" --color "0E8A16" 2>/dev/null || true
+  gh issue create --repo "$REPO" --title "$TITLE" --label "daily-digest" --body "$BODY"
   echo "Created daily digest issue"
 fi
