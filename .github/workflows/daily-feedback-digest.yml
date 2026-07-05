@@ -19,7 +19,9 @@ jobs:
       - name: Collect beta feedback
         env:
           GH_TOKEN: ${{ github.token }}
-        run: bash scripts/collect-beta-feedback.sh
+        run: |
+          chmod +x scripts/collect-beta-feedback.sh scripts/post-daily-digest-issue.sh
+          bash scripts/collect-beta-feedback.sh
 
       - name: Commit digest
         run: |

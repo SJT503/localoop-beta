@@ -70,6 +70,7 @@ gh api "repos/$ghRepo/pages" -X POST -f "build_type=legacy" -f "source[branch]=g
 if ($LASTEXITCODE -ne 0) {
   gh api "repos/$ghRepo/pages" -X PUT -f "build_type=legacy" -f "source[branch]=gh-pages" -f "source[path]=/" 2>$null
 }
+# HTTP 409 = Pages already enabled — OK
 
 Write-Host "==> GitHub release + APK" -ForegroundColor Cyan
 $pubspec = Get-Content (Join-Path $root "pubspec.yaml") -Raw
