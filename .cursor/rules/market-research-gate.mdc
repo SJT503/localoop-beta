@@ -1,0 +1,36 @@
+---
+description: 新功能/新方向立项时强制走 L1 agent-reach → L2 opportunity-scout → L3 before-you-build；产物落 docs/market-research/。L3 非 Build small 或 Validate-first 实验时禁止写产品代码。
+alwaysApply: true
+---
+
+# 市场调研闸门
+
+## 触发（任一）
+
+- 新功能、新模块、商业模式/定位变更
+- 用户问竞品、定价、有没有人要
+
+## 跳过
+
+- bugfix、重构、依赖升级、i18n、样式
+- 用户明确「按 spec 实现，不要调研」
+
+## 流程
+
+1. **L1** `agent-reach` → `docs/market-research/YYYY-MM-DD-evidence.md`
+2. **L2** `ai-startup-opportunity-scout` → `docs/market-research/YYYY-MM-DD-analysis.md`
+3. **L3** `before-you-build` → `docs/market-research/YYYY-MM-DD-verdict.md`
+4. 同步更新 `PROJECT_BRIEF.md` 相关章节
+
+## L3 与编码
+
+| Verdict | 允许 |
+|---------|------|
+| Build small | 受限 MVP 编码 |
+| Validate first | 仅验证实验，不写产品功能 |
+| Pivot first / Don't build yet | **禁止编码**，更新 BRIEF 后重跑 |
+
+## 证据纪律
+
+- 无 URL/来源的数据不得写入打分表
+- L1 只采集，L2 才分析，L3 才下结论

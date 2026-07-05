@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "hooks": {
+    "sessionStart": [
+      {
+        "type": "prompt",
+        "prompt": "Dev-studio + advisory bootstrap. If PROJECT_BRIEF exists: (1) read BRIEF/CONSTITUTION/MANIFEST, (2) output engineering identity card in plain language for non-technical user, (3) recommend verify.ps1. For NEW features: run market-research-pipeline L1-L3 before coding unless user says skip. Use senior-tech-advisor for tech decisions in plain language. IL-37 is Claude Code only—do not edit. Input: $ARGUMENTS",
+        "timeout": 15
+      }
+    ]
+  }
+}

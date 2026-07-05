@@ -1,0 +1,45 @@
+name: Beta feedback
+description: Localoop beta tester feedback (privacy-safe — do not paste health details you do not want public)
+title: "[Beta] "
+labels: ["beta-feedback"]
+body:
+  - type: markdown
+    value: |
+      Thanks for trying **Localoop**. Please avoid pasting intimate health details unless you are comfortable with a public GitHub issue.
+  - type: dropdown
+    id: platform
+    attributes:
+      label: How did you try Localoop?
+      options:
+        - Android APK
+        - Web browser
+        - Both
+    validations:
+      required: true
+  - type: dropdown
+    id: switch_intent
+    attributes:
+      label: Would you switch from Flo/Clue?
+      options:
+        - Yes — I would keep using Localoop
+        - Maybe — need a few fixes first
+        - No — not for me
+    validations:
+      required: true
+  - type: textarea
+    id: reason
+    attributes:
+      label: Main reason (be specific)
+      description: e.g. "I like local JSON export but predictions feel off by 2 days"
+    validations:
+      required: true
+  - type: textarea
+    id: blockers
+    attributes:
+      label: What would block you from using it weekly?
+      description: Trust, missing feature, UI, notifications, etc.
+  - type: textarea
+    id: locale
+    attributes:
+      label: Language / region (optional)
+      description: e.g. US, UK, bilingual CN/EN

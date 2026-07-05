@@ -1,0 +1,17 @@
+﻿name: verify
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run verify
+        run: |
+          if [ -f verify.sh ]; then chmod +x verify.sh && ./verify.sh
+          elif [ -f verify.ps1 ]; then pwsh -File verify.ps1
+          else echo "No verify script"; exit 1

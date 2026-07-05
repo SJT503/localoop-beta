@@ -1,0 +1,87 @@
+﻿flutter : Flutter assets will be downloaded from https://storage.flutter-io.cn. Make sure you trust this source!
+At C:\Users\sheng\AppData\Local\Temp\ps-script-bf671283-2951-41dc-99c9-988a7cdb0350.ps1:105 char:77
++ ... ;" + $env:PATH; cd "d:\Cursor\luna-app"; flutter analyze 2>&1 | Out-F ...
++                                              ~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (Flutter assets ...st this source!:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+Resolving dependencies...
+Downloading packages...
+  _fe_analyzer_shared 100.0.0 (104.0.0 available)
+  analyzer 13.0.0 (14.0.0 available)
+  dbus 0.7.13 (0.7.14 available)
+  device_info_plus 12.4.0 (13.2.0 available)
+  device_info_plus_platform_interface 7.0.3 (8.1.0 available)
+  flutter_riverpod 2.6.1 (3.3.2 available)
+  flutter_secure_storage_darwin 0.3.2 (0.4.0 available)
+  flutter_secure_storage_windows 4.1.0 (4.2.2 available)
+  intl 0.20.2 (0.20.3 available)
+  matcher 0.12.19 (0.12.20 available)
+  meta 1.18.0 (1.18.3 available)
+  package_config 2.2.0 (3.0.0 available)
+  pointycastle 3.9.1 (4.0.0 available)
+  qr 3.0.2 (4.0.0 available)
+  riverpod 2.6.1 (3.3.2 available)
+  share_plus 12.0.2 (13.2.0 available)
+  share_plus_platform_interface 6.1.0 (7.1.0 available)
+  sodium 3.4.6 (4.0.2+1 available)
+  sodium_libs 3.4.6+4 (discontinued replaced by sodium)
+  test_api 0.7.11 (0.7.13 available)
+  vector_math 2.2.0 (2.4.0 available)
+  win32 5.15.0 (6.3.0 available)
+  win32_registry 2.1.0 (3.0.3 available)
+Got dependencies!
+1 package is discontinued.
+23 packages have newer versions incompatible with dependency constraints.
+Try `flutter pub outdated` for more information.
+Analyzing luna-app...                                           
+
+warning - 'avoid_returning_null_for_future' was removed in Dart '3.3.0' Try removing the reference to 'avoid_returning_null_for_future' - analysis_options.yaml:35:5 - removed_lint
+warning - Duplicate import. Try removing all but one import of the library - lib\core\crypto\key_derivation.dart:3:8 - duplicate_import
+   info - Use 'const' for final variables initialized to a constant value. Try replacing 'final' with 'const' - lib\core\crypto\key_derivation.dart:55:5 - prefer_const_declarations
+   info - Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation - lib\core\export\data_exporter.dart:90:41 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation - lib\core\export\data_exporter.dart:93:22 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation - lib\core\export\data_exporter.dart:109:24 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation - lib\core\export\data_exporter.dart:125:26 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation - lib\core\export\data_exporter.dart:146:38 - prefer_const_constructors
+   info - 'Share' is deprecated and shouldn't be used. Use SharePlus instead. Try replacing the use of the deprecated member with the replacement - lib\core\export\data_exporter.dart:169:11 - deprecated_member_use
+   info - 'shareXFiles' is deprecated and shouldn't be used. Use SharePlus.instance.share() instead. Try replacing the use of the deprecated member with the replacement - lib\core\export\data_exporter.dart:169:17 - deprecated_member_use
+   info - 'Share' is deprecated and shouldn't be used. Use SharePlus instead. Try replacing the use of the deprecated member with the replacement - lib\core\export\data_exporter.dart:174:11 - deprecated_member_use
+   info - 'shareXFiles' is deprecated and shouldn't be used. Use SharePlus.instance.share() instead. Try replacing the use of the deprecated member with the replacement - lib\core\export\data_exporter.dart:174:17 - deprecated_member_use
+   info - The import of 'dart:typed_data' is unnecessary because all of the used elements are also provided by the import of 'package:drift/drift.dart'. Try removing the import directive - lib\core\storage\database.dart:2:8 - unnecessary_import
+warning - The value of the field '_dbKey' isn't used. Try removing the field, or using it - lib\core\storage\database.dart:18:19 - unused_field
+   info - 'encryptedSharedPreferences' is deprecated and shouldn't be used. EncryptedSharedPreferences is deprecated and will be removed in v11. The Jetpack Security library is deprecated by Google. Your data will be automatically migrated to custom ciphers on first access. Remove this parameter - it will be ignored. Try replacing the use of the deprecated member with the replacement - lib\core\storage\secure_storage.dart:29:7 - deprecated_member_use
+warning - The value of the field '_defaultPeriodLength' isn't used. Try removing the field, or using it - lib\domain\prediction\period_predictor.dart:19:20 - unused_field
+   info - Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation - lib\features\insights\insights_screen.dart:87:14 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation - lib\features\insights\insights_screen.dart:87:26 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation - lib\features\insights\insights_screen.dart:87:72 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation - lib\features\insights\insights_screen.dart:117:14 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation - lib\features\insights\insights_screen.dart:117:26 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation - lib\features\insights\insights_screen.dart:145:14 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation - lib\features\insights\insights_screen.dart:145:26 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation - lib\features\insights\insights_screen.dart:188:14 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation - lib\features\insights\insights_screen.dart:188:26 - prefer_const_constructors
+warning - The type argument(s) of the constructor 'MaterialPageRoute' can't be inferred. Use explicit type argument(s) for 'MaterialPageRoute' - lib\features\period_tracking\period_tracking_screen.dart:53:13 - inference_failure_on_instance_creation
+warning - The type argument(s) of the constructor 'TableCalendar' can't be inferred. Use explicit type argument(s) for 'TableCalendar' - lib\features\period_tracking\period_tracking_screen.dart:102:9 - inference_failure_on_instance_creation
+   info - Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation - lib\features\premium\premium_screen.dart:44:11 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation - lib\features\settings\settings_screen.dart:46:9 - prefer_const_constructors
+warning - The type argument(s) of the function 'showDialog' can't be inferred. Use explicit type argument(s) for 'showDialog' - lib\features\settings\settings_screen.dart:115:5 - inference_failure_on_function_invocation
+   info - Don't use 'BuildContext's across async gaps. Try rewriting the code to not use the 'BuildContext', or guard the use with a 'mounted' check - lib\features\settings\settings_screen.dart:116:7 - use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps. Try rewriting the code to not use the 'BuildContext', or guard the use with a 'mounted' check - lib\features\settings\settings_screen.dart:130:28 - use_build_context_synchronously
+   info - Use the null-aware operator '?.' rather than an explicit 'null' comparison. Try using '?.' - lib\features\settings\settings_screen.dart:138:27 - prefer_null_aware_operators
+   info - Don't use 'BuildContext's across async gaps. Try rewriting the code to not use the 'BuildContext', or guard the use with a 'mounted' check - lib\features\settings\settings_screen.dart:142:28 - use_build_context_synchronously
+warning - The type argument(s) of the function 'showDialog' can't be inferred. Use explicit type argument(s) for 'showDialog' - lib\features\settings\settings_screen.dart:147:5 - inference_failure_on_function_invocation
+   info - Don't use 'BuildContext's across async gaps. Try rewriting the code to not use the 'BuildContext', or guard the use with a 'mounted' check - lib\features\settings\settings_screen.dart:176:19 - use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps. Try rewriting the code to not use the 'BuildContext', or guard the use with a 'mounted' check - lib\features\settings\settings_screen.dart:177:26 - use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps. Try rewriting the code to not use the 'BuildContext', or guard the use with a 'mounted' check - lib\features\settings\settings_screen.dart:181:5 - use_build_context_synchronously
+warning - The type argument(s) of the function 'showDialog' can't be inferred. Use explicit type argument(s) for 'showDialog' - lib\features\settings\settings_screen.dart:184:44 - inference_failure_on_function_invocation
+warning - The type argument(s) of the function 'showDialog' can't be inferred. Use explicit type argument(s) for 'showDialog' - lib\features\settings\settings_screen.dart:197:52 - inference_failure_on_function_invocation
+warning - The type argument(s) of the function 'showDialog' can't be inferred. Use explicit type argument(s) for 'showDialog' - lib\features\settings\settings_screen.dart:218:52 - inference_failure_on_function_invocation
+   info - Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation - lib\features\wearable\wearable_settings_screen.dart:48:11 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation - lib\features\wearable\wearable_settings_screen.dart:50:20 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation - lib\features\wearable\wearable_settings_screen.dart:52:22 - prefer_const_constructors
+warning - The value of the local variable 'm2' isn't used. Try removing the variable or using it - test\crypto\mnemonic_test.dart:40:13 - unused_local_variable
+   info - The local variable '_periods' starts with an underscore. Try renaming the variable to not start with an underscore - test\domain\period_predictor_test.dart:7:22 - no_leading_underscores_for_local_identifiers
+  error - The name 'MyApp' isn't a class. Try correcting the name to match an existing class - test\widget_test.dart:16:35 - creation_with_non_type
+
+47 issues found. (ran in 17.8s)
