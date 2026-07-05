@@ -1,4 +1,4 @@
-﻿name: verify
+name: verify
 
 on:
   push:
@@ -18,5 +18,6 @@ jobs:
 
       - name: Run verify
         run: |
-          chmod +x verify.sh
-          ./verify.sh
+          flutter pub get
+          flutter analyze
+          flutter test
