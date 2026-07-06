@@ -1,13 +1,16 @@
 # Localoop
 
-**Local-first period tracker** — no account, no cloud sync, no ad feed. Beta for privacy-conscious users leaving Flo/Clue.
+**Local-first period tracker** — portfolio project: privacy-conscious design, Flutter Web + Android, 8 languages.
+
+> Validation paused (2026-07). **Live demo + case study** for portfolio — not an active growth launch.
 
 | | Link |
 |---|------|
-| **Web beta** | https://sjt503.github.io/localoop-beta/ |
+| **Web demo** | https://sjt503.github.io/localoop-beta/ |
+| **Portfolio write-up** | [docs/PORTFOLIO.md](docs/PORTFOLIO.md) |
+| **Source** | https://github.com/SJT503/localoop-beta |
 | **Android APK** | https://github.com/SJT503/localoop-beta/releases/latest |
 | **Data & privacy** | [DATA_DISCLOSURE.md](docs/DATA_DISCLOSURE.md) |
-| **Feedback** | [GitHub Issues](https://github.com/SJT503/localoop-beta/issues/new?template=beta_feedback.yml) |
 
 ## Features (beta 0.1.4)
 
@@ -32,8 +35,7 @@ cd d:\Cursor\luna-app
 
 ## Daily feedback digest
 
-- GitHub Actions: `.github/workflows/daily-feedback-digest.yml` (09:00 Beijing)
-- Local: `.\scripts\collect-beta-feedback.ps1` → `docs/feedback/`
+Paused in portfolio mode. To re-enable: `.github/workflows/daily-feedback-digest.yml` + `.\scripts\collect-beta-feedback.ps1`
 
 ---
 

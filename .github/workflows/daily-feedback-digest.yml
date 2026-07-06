@@ -1,9 +1,9 @@
 name: Daily feedback digest
 
 on:
-  schedule:
-    # 09:00 Beijing = 01:00 UTC
-    - cron: '0 1 * * *'
+  # Paused — portfolio mode (re-enable for beta validation)
+  # schedule:
+  #   - cron: '0 1 * * *'
   workflow_dispatch:
 
 permissions:

@@ -1,27 +1,27 @@
-# Localoop beta launch — status
-
-**Version:** 0.1.4  
-**Updated:** 2026-07-06
-
-| Channel | Status | Link / action |
-|---------|--------|----------------|
-| **GitHub Release** | ✅ Automated via `deploy-beta.ps1` | https://github.com/SJT503/localoop-beta/releases/latest |
-| **GitHub Pages (Web)** | ✅ gh-pages branch | https://sjt503.github.io/localoop-beta/ |
-| **GitHub Discussion** | ✅ Launch thread | See repo Discussions |
-| **Reddit** | 📋 Copy ready | [REDDIT_POSTS.md](REDDIT_POSTS.md) — post with your Reddit account |
-| **Product Hunt** | 📋 Kit ready | [PRODUCT_HUNT.md](PRODUCT_HUNT.md) — submit at producthunt.com |
-| **Daily feedback digest** | ✅ GHA 09:00 + Windows task | `docs/feedback/` + Issues label `daily-digest` |
-
-## Daily report to you
-
-1. **GitHub email** — Watch repo → daily issue titled `📊 Daily beta feedback — YYYY-MM-DD`
-2. **Local file** — `D:\Cursor\luna-app\docs\feedback\YYYY-MM-DD-digest.md` (Windows task 09:00)
-3. **Manual** — `.\scripts\collect-beta-feedback.ps1`
-
-## Reddit posting schedule (suggested)
-
-| Day | Sub | File section |
-|-----|-----|----------------|
-| D0 | r/SideProject | Post A |
-| D2 | r/Periods | Post B |
-| D4 | r/privacy | Post C |
+# Localoop launch — status
+
+**Version:** 0.1.4  
+**Mode:** **Portfolio** (2026-07-07)  
+**Previous:** Overseas beta validation
+
+| Channel | Status | Notes |
+|---------|--------|-------|
+| **GitHub Release + APK** | ✅ Keep | Portfolio demo download |
+| **GitHub Pages (Web)** | ✅ Keep | https://sjt503.github.io/localoop-beta/ |
+| **Portfolio case study** | ✅ | [PORTFOLIO.md](../PORTFOLIO.md) |
+| **Reddit** | ⏸ Stopped | Post removed by Reddit filters; no retry planned |
+| **Product Hunt** | ⏸ Cancelled | Portfolio mode |
+| **Daily feedback digest** | ⏸ Paused | Not needed for portfolio |
+
+## For your portfolio site
+
+Copy from `docs/PORTFOLIO.md`:
+
+- **EN one-liner** → hero subtitle  
+- **Links table** → CTA buttons (Live demo · GitHub)  
+- **Screenshot checklist** → capture 4–5 screens into `docs/portfolio/assets/`
+
+## Repo stays public
+
+The Web demo and APK remain useful as **proof of work** for recruiters and reviewers. No active growth or feedback campaign.
+

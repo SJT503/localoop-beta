@@ -63,7 +63,12 @@
 
 ## 7. 当前阶段
 
-**5 — 质量与自动化**；**当前 P0 = 海外隐私窄切口 · 野路子 beta 分发**
+**Portfolio（作品集）** — 2026-07-07 定稿
+
+- Reddit / PH 推广暂停（Reddit 被筛选器移除）
+- 保留：**Web 在线 demo + GitHub 开源 + APK** 作为作品证明
+- 作品集文案：`docs/PORTFOLIO.md`（中英 one-liner、简历 bullet、截图清单）
+- 不再主动跑增长 / 每日反馈 digest
 
 ## 7b. 顾问与调研
 
